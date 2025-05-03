@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { projects, getSupplierById } from "@/data/mockData";
 import { Project, ProjectStatus } from "@/types";
 import { cn } from "@/lib/utils";
@@ -34,21 +33,31 @@ const Timeline = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Project Timeline</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-actemium-darkBlue">Project Timeline</h1>
+        <div className="w-40 h-12 relative">
+          {/* Actemium logo */}
+          <img 
+            src="https://www.actemium-mixing-process.com/typo3conf/ext/actemium/Resources/Public/img/logo-actemium.svg" 
+            alt="Actemium Logo" 
+            className="h-full w-full object-contain" 
+          />
+        </div>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-lg">Filters</CardTitle>
+        <Card className="md:col-span-1 border-actemium-blue/20">
+          <CardHeader className="border-b border-actemium-blue/10">
+            <CardTitle className="text-lg text-actemium-blue">Filters</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Project</label>
+              <label className="text-sm font-medium mb-2 block text-actemium-darkBlue">Project</label>
               <Select
                 value={selectedProject || ""}
                 onValueChange={(value) => setSelectedProject(value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-actemium-blue/30 focus:ring-actemium-blue/30">
                   <SelectValue placeholder="Select a project" />
                 </SelectTrigger>
                 <SelectContent>
@@ -61,12 +70,12 @@ const Timeline = () => {
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-2 block">Status</label>
+              <label className="text-sm font-medium mb-2 block text-actemium-darkBlue">Status</label>
               <Select
                 value={filter}
                 onValueChange={(value) => setFilter(value as ProjectStatus | "all")}
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-actemium-blue/30 focus:ring-actemium-blue/30">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -81,7 +90,7 @@ const Timeline = () => {
             
             <Button 
               variant="outline" 
-              className="w-full"
+              className="w-full border-actemium-blue text-actemium-blue hover:bg-actemium-blue hover:text-white"
               onClick={() => {
                 setSelectedProject(null);
                 setFilter("all");
@@ -93,18 +102,18 @@ const Timeline = () => {
         </Card>
         
         <div className="md:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">
+          <Card className="border-actemium-blue/20">
+            <CardHeader className="border-b border-actemium-blue/10">
+              <CardTitle className="text-lg text-actemium-blue">
                 {selectedProject 
                   ? `Timeline for ${projects.find(p => p.id === selectedProject)?.name}` 
                   : "Project Timeline"}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="relative">
                 {/* Timeline line */}
-                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border"></div>
+                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-actemium-blue/30"></div>
                 
                 {/* Timeline events */}
                 <div className="space-y-6 pl-12 relative">
@@ -114,12 +123,12 @@ const Timeline = () => {
                         {/* Timeline dot */}
                         <div className={cn(
                           "absolute -left-8 w-4 h-4 rounded-full border-2",
-                          event.completed ? "bg-green-500 border-green-600" : "bg-background border-muted-foreground"
+                          event.completed ? "bg-actemium-blue border-actemium-darkBlue" : "bg-background border-actemium-blue/50"
                         )}></div>
                         
                         {/* Event content */}
                         <div>
-                          <h3 className="font-medium">{event.title}</h3>
+                          <h3 className="font-medium text-actemium-darkBlue">{event.title}</h3>
                           <p className="text-sm text-muted-foreground">{event.date}</p>
                           <p className="mt-1">{event.description}</p>
                         </div>

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -64,10 +63,15 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				status: {
-					'completed': '#34A853',
-					'in-progress': '#FBBC05',
+					'completed': '#00A3C0', // Actemium blue for completed
+					'in-progress': '#00A3C0', // Actemium blue for in-progress
 					'delayed': '#EA4335',
-					'pending': '#9AA0A6',
+					'pending': '#777777', // Darker grey for pending
+				},
+				actemium: {
+					blue: '#00A3C0',
+					darkBlue: '#005670',
+					grey: '#F2F2F2'
 				}
 			},
 			borderRadius: {
