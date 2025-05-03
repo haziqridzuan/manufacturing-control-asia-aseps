@@ -1,200 +1,200 @@
 
-import { useState } from "react";
-import { projects, formatDate, getSupplierById } from "@/data/mockData";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import StatusBadge from "@/components/ui/StatusBadge";
-import { Project } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { projects, getSupplierById } from "@/data/mockData";
+import { Project, ProjectStatus } from "@/types";
 import { cn } from "@/lib/utils";
 
 const Timeline = () => {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [filter, setFilter] = useState<ProjectStatus | "all">("all");
   
-  // Filter projects based on selection
-  const displayedProjects = selectedProject
-    ? projects.filter(project => project.id === selectedProject)
-    : projects;
-  
-  // Sort projects by start date
-  const sortedProjects = [...displayedProjects].sort(
-    (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-  );
-  
-  // Calculate timeline range
-  const startDates = sortedProjects.map(project => new Date(project.startDate));
-  const endDates = sortedProjects.map(project => new Date(project.deadline));
-  
-  const minDate = startDates.length > 0 ? new Date(Math.min(...startDates.map(d => d.getTime()))) : new Date();
-  const maxDate = endDates.length > 0 ? new Date(Math.max(...endDates.map(d => d.getTime()))) : new Date();
-  
-  // Add buffer to timeline
-  minDate.setMonth(minDate.getMonth() - 1);
-  maxDate.setMonth(maxDate.getMonth() + 1);
-  
-  const timelineRange = maxDate.getTime() - minDate.getTime();
-  
-  // Function to calculate position on timeline
-  const getTimelinePosition = (date: Date): string => {
-    const position = ((date.getTime() - minDate.getTime()) / timelineRange) * 100;
-    return `${position}%`;
-  };
-  
-  // Function to calculate width on timeline
-  const getTimelineWidth = (startDate: Date, endDate: Date): string => {
-    const start = startDate.getTime();
-    const end = endDate.getTime();
-    const width = ((end - start) / timelineRange) * 100;
-    return `${width}%`;
-  };
-  
-  // Generate months for timeline header
-  const generateMonths = () => {
-    const months = [];
-    const currentDate = new Date(minDate);
-    
-    while (currentDate <= maxDate) {
-      months.push(new Date(currentDate));
-      currentDate.setMonth(currentDate.getMonth() + 1);
+  // Get project ID from URL if present
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const projectId = params.get("project");
+    if (projectId) {
+      setSelectedProject(projectId);
     }
-    
-    return months;
-  };
-  
-  const months = generateMonths();
-  
+  }, []);
+
+  const filteredProjects = projects.filter(project => {
+    if (filter !== "all" && project.status !== filter) {
+      return false;
+    }
+    return true;
+  });
+
+  const projectEvents = selectedProject 
+    ? generateProjectTimeline(selectedProject)
+    : [];
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Timeline View</h1>
-        <div className="w-72">
-          <Select
-            value={selectedProject || ""}
-            onValueChange={(value) => setSelectedProject(value || null)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Filter by project" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Projects</SelectItem>
-              {projects.map((project) => (
-                <SelectItem key={project.id} value={project.id}>
-                  {project.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <h1 className="text-3xl font-bold">Project Timeline</h1>
       
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Project Timeline</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {sortedProjects.length > 0 ? (
-            <div className="relative">
-              {/* Timeline Header - Months */}
-              <div className="relative h-10 border-b border-gray-200 mb-4">
-                {months.map((month, index) => {
-                  const position = getTimelinePosition(month);
-                  
-                  return (
-                    <div 
-                      key={index}
-                      className="absolute top-0 -ml-12 text-xs"
-                      style={{ left: position }}
-                    >
-                      {month.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                      <div className="h-2 w-0.5 bg-gray-300 absolute bottom-0 left-12 transform translate-x-0.5"></div>
-                    </div>
-                  );
-                })}
-              </div>
-              
-              {/* Projects Timeline */}
-              <div className="space-y-8">
-                {sortedProjects.map((project, index) => {
-                  const startDate = new Date(project.startDate);
-                  const endDate = new Date(project.deadline);
-                  const position = getTimelinePosition(startDate);
-                  const width = getTimelineWidth(startDate, endDate);
-                  const supplier = getSupplierById(project.supplierId);
-                  
-                  const statusColors = {
-                    'pending': 'bg-status-pending border-status-pending',
-                    'in-progress': 'bg-status-in-progress border-status-in-progress',
-                    'delayed': 'bg-status-delayed border-status-delayed',
-                    'completed': 'bg-status-completed border-status-completed',
-                  };
-                  
-                  return (
-                    <div key={project.id} className="relative h-16">
-                      {/* Project Info */}
-                      <div className="absolute top-0 left-0 w-64 pr-4 h-full flex flex-col justify-center">
-                        <div className="font-medium truncate">{project.name}</div>
-                        <div className="text-xs text-muted-foreground">{supplier?.name}</div>
-                      </div>
-                      
-                      {/* Timeline Bar */}
-                      <div 
-                        className="absolute h-8 rounded-md border-2"
-                        style={{ 
-                          left: `calc(${position} + 64px)`, 
-                          width: width,
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                        }}
-                      >
-                        {/* Render project bar with progress */}
-                        <div 
-                          className={cn(
-                            "h-full rounded-sm opacity-80",
-                            statusColors[project.status]
-                          )}
-                          style={{ width: `${project.progress}%` }}
-                        ></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="md:col-span-1">
+          <CardHeader>
+            <CardTitle className="text-lg">Filters</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Project</label>
+              <Select
+                value={selectedProject || ""}
+                onValueChange={(value) => setSelectedProject(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a project" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">All Projects</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium mb-2 block">Status</label>
+              <Select
+                value={filter}
+                onValueChange={(value) => setFilter(value as ProjectStatus | "all")}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="delayed">Delayed</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                setSelectedProject(null);
+                setFilter("all");
+              }}
+            >
+              Reset Filters
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <div className="md:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">
+                {selectedProject 
+                  ? `Timeline for ${projects.find(p => p.id === selectedProject)?.name}` 
+                  : "Project Timeline"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border"></div>
+                
+                {/* Timeline events */}
+                <div className="space-y-6 pl-12 relative">
+                  {projectEvents.length > 0 ? (
+                    projectEvents.map((event, index) => (
+                      <div key={index} className="relative">
+                        {/* Timeline dot */}
+                        <div className={cn(
+                          "absolute -left-8 w-4 h-4 rounded-full border-2",
+                          event.completed ? "bg-green-500 border-green-600" : "bg-background border-muted-foreground"
+                        )}></div>
                         
-                        {/* Render milestones */}
-                        {project.milestones.map((milestone, mIndex) => {
-                          const milestoneDate = new Date(milestone.dueDate);
-                          const milestonePosition = ((milestoneDate.getTime() - startDate.getTime()) / (endDate.getTime() - startDate.getTime())) * 100;
-                          
-                          if (milestonePosition < 0 || milestonePosition > 100) {
-                            return null;
-                          }
-                          
-                          return (
-                            <div 
-                              key={milestone.id}
-                              className={cn(
-                                "absolute top-full mt-1 w-3 h-3 rounded-full -ml-1.5 border-2 border-white",
-                                milestone.completed ? "bg-status-completed" : "bg-white"
-                              )}
-                              style={{ left: `${milestonePosition}%` }}
-                              title={`${milestone.title} - ${formatDate(milestone.dueDate)}`}
-                            ></div>
-                          );
-                        })}
-                        
-                        {/* Display project status */}
-                        <div className="absolute -bottom-6 left-0 text-xs">
-                          <StatusBadge status={project.status} />
+                        {/* Event content */}
+                        <div>
+                          <h3 className="font-medium">{event.title}</h3>
+                          <p className="text-sm text-muted-foreground">{event.date}</p>
+                          <p className="mt-1">{event.description}</p>
                         </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center text-muted-foreground">
+                      {selectedProject 
+                        ? "No timeline events for this project." 
+                        : "Select a project to view its timeline."}
                     </div>
-                  );
-                })}
+                  )}
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              No projects found for the selected criteria.
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
+};
+
+interface TimelineEvent {
+  title: string;
+  date: string;
+  description: string;
+  completed: boolean;
+}
+
+// Generate mock timeline events for a project
+const generateProjectTimeline = (projectId: string): TimelineEvent[] => {
+  const project = projects.find(p => p.id === projectId);
+  if (!project) return [];
+  
+  const supplier = getSupplierById(project.supplierId);
+  const events: TimelineEvent[] = [
+    {
+      title: "Project Created",
+      date: "2022-09-15",
+      description: `Project ${project.name} was created with ${supplier?.name}.`,
+      completed: true
+    },
+    {
+      title: "Design Phase",
+      date: "2022-09-30",
+      description: "Initial design and specifications were approved.",
+      completed: project.progress >= 20
+    },
+    {
+      title: "Material Procurement",
+      date: "2022-10-20",
+      description: "All necessary materials were ordered and received.",
+      completed: project.progress >= 40
+    },
+    {
+      title: "Fabrication Started",
+      date: "2022-11-05",
+      description: "Production and assembly process began.",
+      completed: project.progress >= 60
+    },
+    {
+      title: "Quality Testing",
+      date: "2022-12-10",
+      description: "Quality assurance tests performed on components.",
+      completed: project.progress >= 80
+    },
+    {
+      title: "Project Completion",
+      date: project.deadline,
+      description: "Final delivery and project handover.",
+      completed: project.status === "completed"
+    }
+  ];
+  
+  return events;
 };
 
 export default Timeline;
