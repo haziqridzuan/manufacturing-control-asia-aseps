@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Filter } from "lucide-react";
@@ -10,6 +9,7 @@ import StatusBadge from "@/components/ui/StatusBadge";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { projects, getSupplierById, formatDate, getDaysRemaining } from "@/data/mockData";
 import { FilterOptions, Project, ProjectStatus } from "@/types";
+import { cn } from "@/lib/utils";
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");

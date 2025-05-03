@@ -1,4 +1,3 @@
-
 import { BarChart, PieChart } from "recharts";
 import { Package, Users, Calendar, ArrowRight, Gauge, Clock, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +7,7 @@ import ProgressBar from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { projects, suppliers, getSupplierById, getDaysRemaining, formatDate } from "@/data/mockData";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const Dashboard = () => {
   // Calculate metrics
