@@ -9,7 +9,8 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Gauge,
-  Map
+  Map,
+  Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -47,6 +48,11 @@ const Sidebar = () => {
       name: 'Analytics', 
       icon: <BarChart className="h-5 w-5" />, 
       path: '/analytics' 
+    },
+    { 
+      name: 'Admin', 
+      icon: <Settings className="h-5 w-5" />, 
+      path: '/admin' 
     }
   ];
   
@@ -60,7 +66,7 @@ const Sidebar = () => {
       <div className="flex h-full flex-col py-4">
         <div className="flex items-center justify-between px-4 mb-6">
           {!collapsed && (
-            <h2 className="text-xl font-bold">Fab Tracker</h2>
+            <h2 className="text-xl font-bold">ASEPS Asia</h2>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}

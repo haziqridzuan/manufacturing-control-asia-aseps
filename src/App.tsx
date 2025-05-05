@@ -11,6 +11,7 @@ import Suppliers from "./pages/Suppliers";
 import Timeline from "./pages/Timeline";
 import GlobalMap from "./pages/GlobalMap";
 import Analytics from "./pages/Analytics";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/timeline" element={<Layout><Timeline /></Layout>} />
           <Route path="/map" element={<Layout><GlobalMap /></Layout>} />
           <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
+          <Route path="/admin" element={<Layout><Admin /></Layout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
