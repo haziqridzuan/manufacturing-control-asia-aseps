@@ -1,7 +1,8 @@
+
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { AreaChart, Home, MapPin, CalendarDays, Users, Settings, Package, Link2 } from 'lucide-react';
+import { AreaChart, Home, MapPin, CalendarDays, Users, Settings, Package, Link2, Database } from 'lucide-react';
 
 const Sidebar = () => {
   const isMobile = useIsMobile();
@@ -36,6 +37,11 @@ const Sidebar = () => {
       title: 'Analytics',
       icon: AreaChart,
       href: '/analytics',
+    },
+    {
+      title: 'Export Data',
+      icon: Database,
+      href: '/export-data',
     },
     {
       title: 'External Links',

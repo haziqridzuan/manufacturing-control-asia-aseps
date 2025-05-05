@@ -15,6 +15,7 @@ import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ProjectDetails from "./pages/ProjectDetails";
 import ExternalLinks from "./pages/ExternalLinks";
+import ExportData from "./pages/ExportData";
 
 const queryClient = new QueryClient();
 
@@ -29,11 +30,12 @@ const App = () => (
           <Route path="/projects" element={<Layout><Projects /></Layout>} />
           <Route path="/project/:id" element={<Layout><ProjectDetails /></Layout>} />
           <Route path="/suppliers" element={<Layout><Suppliers /></Layout>} />
-          <Route path="/supplier/:id" element={<Layout><ProjectDetails /></Layout>} />
+          <Route path="/supplier/:id" element={<Layout><SupplierDetails /></Layout>} />
           <Route path="/timeline" element={<Layout><Timeline /></Layout>} />
           <Route path="/map" element={<Layout><GlobalMap /></Layout>} />
           <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
           <Route path="/external-links" element={<Layout><ExternalLinks /></Layout>} />
+          <Route path="/export-data" element={<Layout><ExportData /></Layout>} />
           <Route path="/admin" element={<Layout><Admin /></Layout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
