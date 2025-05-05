@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { projects, suppliers, getProjectsByStatus, purchaseOrders } from "@/data/mockData";
@@ -10,20 +9,18 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
 const Analytics = () => {
-  // State for date range filter
-  const [dateRange, setDateRange] = useState<{
-    from: Date | undefined;
-    to: Date | undefined;
-  }>({
+  // State for date range filter - update type to use DateRange from react-day-picker
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
   });
   
   // Date filter function
   const filterDataByDate = (data: any[], dateField: string) => {
-    if (!dateRange.from && !dateRange.to) return data;
+    if (!dateRange?.from && !dateRange?.to) return data;
     
     return data.filter(item => {
       const itemDate = new Date(item[dateField]);
@@ -105,7 +102,7 @@ const Analytics = () => {
               className="justify-start text-left font-normal"
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {dateRange.from ? (
+              {dateRange?.from ? (
                 dateRange.to ? (
                   <>
                     {format(dateRange.from, "LLL dd, y")} -{" "}
@@ -123,7 +120,7 @@ const Analytics = () => {
             <Calendar
               initialFocus
               mode="range"
-              defaultMonth={dateRange.from}
+              defaultMonth={dateRange?.from}
               selected={dateRange}
               onSelect={setDateRange}
               numberOfMonths={2}
@@ -131,7 +128,7 @@ const Analytics = () => {
             <div className="flex items-center justify-between p-3 border-t">
               <Button
                 variant="ghost"
-                onClick={() => setDateRange({ from: undefined, to: undefined })}
+                onClick={() => setDateRange(undefined)}
               >
                 Clear
               </Button>

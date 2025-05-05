@@ -1,4 +1,5 @@
 
+
 export type Supplier = {
   id: string;
   name: string;
@@ -62,3 +63,4 @@ export type PurchaseOrder = {
   shipmentDate?: string;
   notes?: string;
 };
+
