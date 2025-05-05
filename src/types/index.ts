@@ -24,6 +24,8 @@ export type Project = {
   description: string;
   budget: number;
   milestones: Milestone[];
+  projectManager?: string;
+  manufacturingManager?: string;
 };
 
 export type Milestone = {
@@ -41,4 +43,22 @@ export type FilterOptions = {
     from: Date | undefined;
     to: Date | undefined;
   };
+};
+
+export type POStatus = 'active' | 'completed' | 'canceled';
+
+export type PurchaseOrder = {
+  id: string;
+  poNumber: string;
+  projectId: string;
+  partName: string;
+  quantity: number;
+  supplierId: string;
+  clientName: string;
+  dateCreated: string;
+  deadline?: string;
+  placedBy: string;
+  status: POStatus;
+  shipmentDate?: string;
+  notes?: string;
 };

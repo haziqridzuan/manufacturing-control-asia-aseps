@@ -1,11 +1,12 @@
+
 import { BarChart, PieChart } from "recharts";
-import { Package, Users, Calendar, ArrowRight, Gauge, Clock, Check } from "lucide-react";
+import { Package, Users, Calendar, ArrowRight, Gauge, Clock, Check, Database, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import StatCard from "@/components/dashboard/StatCard";
 import StatusBadge from "@/components/ui/StatusBadge";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/button";
-import { projects, suppliers, getSupplierById, getDaysRemaining, formatDate } from "@/data/mockData";
+import { projects, suppliers, getSupplierById, getDaysRemaining, formatDate, purchaseOrders, getActivePOs, getCompletedPOs } from "@/data/mockData";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,11 @@ const Dashboard = () => {
   const inProgressProjects = projects.filter(p => p.status === "in-progress").length;
   const delayedProjects = projects.filter(p => p.status === "delayed").length;
   const totalSuppliers = suppliers.length;
+  
+  // PO metrics
+  const activePOs = getActivePOs().length;
+  const completedPOs = getCompletedPOs().length;
+  const totalPOs = purchaseOrders.length;
   
   // Get upcoming deadlines (projects sorted by nearest deadline)
   const upcomingDeadlines = [...projects]
@@ -34,7 +40,7 @@ const Dashboard = () => {
       </div>
       
       {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
         <StatCard 
           title="Total Projects" 
           value={totalProjects} 
@@ -56,6 +62,18 @@ const Dashboard = () => {
           value={delayedProjects} 
           icon={<Clock className="h-4 w-4 text-muted-foreground" />}
           trend={{ value: Math.round((delayedProjects / totalProjects) * 100), positive: false }}
+        />
+        <StatCard 
+          title="Active POs" 
+          value={activePOs} 
+          icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
+          trend={{ value: Math.round((activePOs / totalPOs) * 100), positive: true }}
+        />
+        <StatCard 
+          title="Completed POs" 
+          value={completedPOs} 
+          icon={<Database className="h-4 w-4 text-muted-foreground" />}
+          trend={{ value: Math.round((completedPOs / totalPOs) * 100), positive: true }}
         />
       </div>
       
@@ -199,7 +217,7 @@ const Dashboard = () => {
                   return (
                     <tr key={project.id} className="border-b last:border-0 hover:bg-muted/50">
                       <td className="py-3 px-4">
-                        <Link to={`/projects/${project.id}`} className="font-medium hover:underline">
+                        <Link to={`/project/${project.id}`} className="font-medium hover:underline">
                           {project.name}
                         </Link>
                       </td>

@@ -1,5 +1,4 @@
-
-import { Milestone, Project, ProjectStatus, Supplier } from "@/types";
+import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus } from "@/types";
 
 export const suppliers: Supplier[] = [
   {
@@ -279,7 +278,7 @@ export const projects: Project[] = [
       },
       {
         id: "m3p5",
-        title: "Production Phase I",
+6 title: "Production Phase I",
         dueDate: "2025-06-15",
         completed: false,
         projectId: "p5"
@@ -351,6 +350,168 @@ export const projects: Project[] = [
   }
 ];
 
+export const purchaseOrders: PurchaseOrder[] = [
+  {
+    id: "po1",
+    poNumber: "PO-2025-001",
+    projectId: "p1",
+    partName: "Steel Beams Type A",
+    quantity: 250,
+    supplierId: "s1",
+    clientName: "NYC Development Corp",
+    dateCreated: "2025-01-20",
+    deadline: "2025-05-10",
+    placedBy: "Sarah Johnson",
+    status: "active",
+    notes: "Custom dimensions as per specifications"
+  },
+  {
+    id: "po2",
+    poNumber: "PO-2025-002",
+    projectId: "p1",
+    partName: "Connection Joints",
+    quantity: 1200,
+    supplierId: "s1",
+    clientName: "NYC Development Corp",
+    dateCreated: "2025-01-25",
+    deadline: "2025-04-15",
+    placedBy: "Sarah Johnson",
+    status: "active",
+    notes: "Heat treated as per specifications"
+  },
+  {
+    id: "po3",
+    poNumber: "PO-2024-089",
+    projectId: "p2",
+    partName: "Glass Panels",
+    quantity: 120,
+    supplierId: "s2",
+    clientName: "Tokyo Metro Authority",
+    dateCreated: "2024-09-05",
+    deadline: "2025-01-10",
+    placedBy: "Takeshi Yamamoto",
+    status: "completed",
+    shipmentDate: "2025-01-05",
+    notes: "Special tempered glass with UV protection"
+  },
+  {
+    id: "po4",
+    poNumber: "PO-2024-090",
+    projectId: "p2",
+    partName: "Structural Frames",
+    quantity: 85,
+    supplierId: "s2",
+    clientName: "Tokyo Metro Authority",
+    dateCreated: "2024-09-10",
+    deadline: "2024-12-20",
+    placedBy: "Takeshi Yamamoto",
+    status: "completed",
+    shipmentDate: "2024-12-15"
+  },
+  {
+    id: "po5",
+    poNumber: "PO-2024-118",
+    projectId: "p3",
+    partName: "Support Columns",
+    quantity: 48,
+    supplierId: "s3",
+    clientName: "Berlin Commercial Developers",
+    dateCreated: "2024-11-15",
+    deadline: "2025-02-28",
+    placedBy: "Franz Mueller",
+    status: "completed",
+    shipmentDate: "2025-02-25"
+  },
+  {
+    id: "po6",
+    poNumber: "PO-2024-119",
+    projectId: "p3",
+    partName: "Facade Panels",
+    quantity: 320,
+    supplierId: "s3",
+    clientName: "Berlin Commercial Developers",
+    dateCreated: "2024-11-20",
+    deadline: "2025-04-15",
+    placedBy: "Franz Mueller",
+    status: "active"
+  },
+  {
+    id: "po7",
+    poNumber: "PO-2025-045",
+    projectId: "p5",
+    partName: "Terminal Roof Trusses",
+    quantity: 36,
+    supplierId: "s5",
+    clientName: "Cape Town Airport Authority",
+    dateCreated: "2025-02-05",
+    deadline: "2025-06-20",
+    placedBy: "Nkosi Mbeki",
+    status: "active"
+  },
+  {
+    id: "po8",
+    poNumber: "PO-2025-046",
+    projectId: "p5",
+    partName: "Glass Walls",
+    quantity: 180,
+    supplierId: "s2",
+    clientName: "Cape Town Airport Authority",
+    dateCreated: "2025-02-10",
+    deadline: "2025-07-15",
+    placedBy: "Nkosi Mbeki",
+    status: "active"
+  },
+  {
+    id: "po9",
+    poNumber: "PO-2025-070",
+    projectId: "p6",
+    partName: "Aluminum Frames",
+    quantity: 540,
+    supplierId: "s2",
+    clientName: "Dubai Property Development",
+    dateCreated: "2025-03-15",
+    deadline: "2025-08-10",
+    placedBy: "Ahmed Al-Farsi",
+    status: "active"
+  },
+  {
+    id: "po10",
+    poNumber: "PO-2025-071",
+    projectId: "p6",
+    partName: "Specialized Glass Panels",
+    quantity: 480,
+    supplierId: "s2",
+    clientName: "Dubai Property Development",
+    dateCreated: "2025-03-18",
+    deadline: "2025-09-05",
+    placedBy: "Ahmed Al-Farsi",
+    status: "active"
+  }
+];
+
+// Update projects with manager information
+projects.forEach(project => {
+  if (project.id === "p1") {
+    project.projectManager = "John Davis";
+    project.manufacturingManager = "Michael Chen";
+  } else if (project.id === "p2") {
+    project.projectManager = "Akira Tanaka";
+    project.manufacturingManager = "Yuki Sato";
+  } else if (project.id === "p3") {
+    project.projectManager = "Klaus Schmidt";
+    project.manufacturingManager = "Hans Muller";
+  } else if (project.id === "p4") {
+    project.projectManager = "Roberto Silva";
+    project.manufacturingManager = "Carlos Fernandez";
+  } else if (project.id === "p5") {
+    project.projectManager = "David Nkosi";
+    project.manufacturingManager = "Samuel Okafor";
+  } else if (project.id === "p6") {
+    project.projectManager = "Mohammed Al-Farsi";
+    project.manufacturingManager = "Tariq Hasan";
+  }
+});
+
 // Helper function to get supplier name by ID
 export const getSupplierById = (id: string): Supplier | undefined => {
   return suppliers.find(supplier => supplier.id === id);
@@ -393,4 +554,29 @@ export const getDaysRemaining = (deadline: string): number => {
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+};
+
+// Get purchase orders by project ID
+export const getPOsByProjectId = (projectId: string): PurchaseOrder[] => {
+  return purchaseOrders.filter(po => po.projectId === projectId);
+};
+
+// Get active purchase orders
+export const getActivePOs = (): PurchaseOrder[] => {
+  return purchaseOrders.filter(po => po.status === "active");
+};
+
+// Get completed purchase orders
+export const getCompletedPOs = (): PurchaseOrder[] => {
+  return purchaseOrders.filter(po => po.status === "completed");
+};
+
+// Get purchase orders by status
+export const getPOsByStatus = (status: POStatus): PurchaseOrder[] => {
+  return purchaseOrders.filter(po => po.status === status);
+};
+
+// Get purchase order by ID
+export const getPOById = (id: string): PurchaseOrder | undefined => {
+  return purchaseOrders.find(po => po.id === id);
 };

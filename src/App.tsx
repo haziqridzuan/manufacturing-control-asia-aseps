@@ -13,6 +13,7 @@ import GlobalMap from "./pages/GlobalMap";
 import Analytics from "./pages/Analytics";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import ProjectDetails from "./pages/ProjectDetails";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Layout><Dashboard /></Layout>} />
           <Route path="/projects" element={<Layout><Projects /></Layout>} />
+          <Route path="/project/:id" element={<Layout><ProjectDetails /></Layout>} />
           <Route path="/suppliers" element={<Layout><Suppliers /></Layout>} />
           <Route path="/timeline" element={<Layout><Timeline /></Layout>} />
           <Route path="/map" element={<Layout><GlobalMap /></Layout>} />

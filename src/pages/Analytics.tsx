@@ -1,45 +1,150 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { projects, suppliers, getProjectsByStatus } from "@/data/mockData";
+import { projects, suppliers, getProjectsByStatus, purchaseOrders } from "@/data/mockData";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line } from "recharts";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 const Analytics = () => {
+  // State for date range filter
+  const [dateRange, setDateRange] = useState<{
+    from: Date | undefined;
+    to: Date | undefined;
+  }>({
+    from: undefined,
+    to: undefined,
+  });
+  
+  // Date filter function
+  const filterDataByDate = (data: any[], dateField: string) => {
+    if (!dateRange.from && !dateRange.to) return data;
+    
+    return data.filter(item => {
+      const itemDate = new Date(item[dateField]);
+      const isAfterFrom = !dateRange.from || itemDate >= dateRange.from;
+      const isBeforeTo = !dateRange.to || itemDate <= dateRange.to;
+      return isAfterFrom && isBeforeTo;
+    });
+  };
+  
+  // Filtered data
+  const filteredProjects = filterDataByDate(projects, 'startDate');
+  const filteredPOs = filterDataByDate(purchaseOrders, 'dateCreated');
+  
   // Project status distribution for pie chart
   const statusDistribution = [
-    { name: 'In Progress', value: getProjectsByStatus('in-progress').length, color: '#3498db' },
-    { name: 'Completed', value: getProjectsByStatus('completed').length, color: '#2ecc71' },
-    { name: 'Delayed', value: getProjectsByStatus('delayed').length, color: '#e74c3c' },
-    { name: 'Pending', value: getProjectsByStatus('pending').length, color: '#95a5a6' },
+    { name: 'In Progress', value: getProjectsByStatus('in-progress').filter(p => filterDataByDate([p], 'startDate').length > 0).length, color: '#3498db' },
+    { name: 'Completed', value: getProjectsByStatus('completed').filter(p => filterDataByDate([p], 'startDate').length > 0).length, color: '#2ecc71' },
+    { name: 'Delayed', value: getProjectsByStatus('delayed').filter(p => filterDataByDate([p], 'startDate').length > 0).length, color: '#e74c3c' },
+    { name: 'Pending', value: getProjectsByStatus('pending').filter(p => filterDataByDate([p], 'startDate').length > 0).length, color: '#95a5a6' },
   ];
 
   // Budget analysis data
-  const budgetData = projects.map(project => ({
+  const budgetData = filteredProjects.map(project => ({
     name: project.name.split(' ').slice(0, 2).join(' '), // Shortened name
     budget: project.budget / 1000, // Convert to thousands for readability
     status: project.status
   }));
 
-  // Timeline adherence data (simulated for this example)
-  const timelineData = [
-    { name: 'Jan', planned: 2, actual: 1 },
-    { name: 'Feb', planned: 4, actual: 3 },
-    { name: 'Mar', planned: 3, actual: 2 },
-    { name: 'Apr', planned: 5, actual: 6 },
-    { name: 'May', planned: 6, actual: 5 },
-  ];
+  // Timeline data based on POs
+  const getMonthlyPOData = () => {
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const currentYear = new Date().getFullYear();
+    
+    const monthlyData = monthNames.map(month => ({
+      name: month,
+      planned: 0,
+      actual: 0
+    }));
+    
+    filteredPOs.forEach(po => {
+      const createdDate = new Date(po.dateCreated);
+      if (createdDate.getFullYear() === currentYear) {
+        const monthIndex = createdDate.getMonth();
+        monthlyData[monthIndex].planned++;
+        
+        if (po.status === 'completed') {
+          monthlyData[monthIndex].actual++;
+        }
+      }
+    });
+    
+    return monthlyData;
+  };
+  
+  const timelineData = getMonthlyPOData();
 
   // Supplier performance data
-  const supplierPerformanceData = suppliers.map(supplier => ({
-    name: supplier.name.split(' ')[0], // First word of supplier name
-    rating: supplier.rating,
-    deliveryRate: supplier.onTimeDeliveryRate
-  }));
+  const supplierPerformanceData = suppliers
+    .filter(supplier => {
+      // Check if this supplier has any POs in the filtered range
+      const supplierHasFilteredPOs = filteredPOs.some(po => po.supplierId === supplier.id);
+      return supplierHasFilteredPOs;
+    })
+    .map(supplier => ({
+      name: supplier.name.split(' ')[0], // First word of supplier name
+      rating: supplier.rating,
+      deliveryRate: supplier.onTimeDeliveryRate
+    }));
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Analytics</h1>
+        
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="justify-start text-left font-normal"
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {dateRange.from ? (
+                dateRange.to ? (
+                  <>
+                    {format(dateRange.from, "LLL dd, y")} -{" "}
+                    {format(dateRange.to, "LLL dd, y")}
+                  </>
+                ) : (
+                  format(dateRange.from, "LLL dd, y")
+                )
+              ) : (
+                <span>All Time</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end">
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={dateRange.from}
+              selected={dateRange}
+              onSelect={setDateRange}
+              numberOfMonths={2}
+            />
+            <div className="flex items-center justify-between p-3 border-t">
+              <Button
+                variant="ghost"
+                onClick={() => setDateRange({ from: undefined, to: undefined })}
+              >
+                Clear
+              </Button>
+              <Button
+                onClick={() => document.querySelector('[data-radix-popper-content-wrapper]')?.dispatchEvent(
+                  new KeyboardEvent('keydown', { key: 'Escape' })
+                )}
+              >
+                Apply
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
       
       <Card>
@@ -67,7 +172,7 @@ const Analytics = () => {
                           outerRadius={80}
                           fill="#8884d8"
                           dataKey="value"
-                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          label={({ name, percent }) => percent > 0 ? `${name}: ${(percent * 100).toFixed(0)}%` : ''}
                         >
                           {statusDistribution.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
@@ -136,8 +241,8 @@ const Analytics = () => {
                         <YAxis />
                         <ChartTooltip content={<ChartTooltipContent />} />
                         <Legend />
-                        <Line type="monotone" dataKey="planned" stroke="#3498db" activeDot={{ r: 8 }} name="Planned Completions" />
-                        <Line type="monotone" dataKey="actual" stroke="#e74c3c" name="Actual Completions" />
+                        <Line type="monotone" dataKey="planned" stroke="#3498db" activeDot={{ r: 8 }} name="Planned POs" />
+                        <Line type="monotone" dataKey="actual" stroke="#e74c3c" name="Completed POs" />
                       </LineChart>
                     </ResponsiveContainer>
                   </ChartContainer>
@@ -199,19 +304,23 @@ const Analytics = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-4 border rounded-lg">
               <p className="text-sm text-muted-foreground">Total Projects</p>
-              <p className="text-2xl font-bold">{projects.length}</p>
+              <p className="text-2xl font-bold">{filteredProjects.length}</p>
             </div>
             <div className="p-4 border rounded-lg">
               <p className="text-sm text-muted-foreground">Total Budget</p>
-              <p className="text-2xl font-bold">${(projects.reduce((sum, p) => sum + p.budget, 0) / 1000000).toFixed(1)}M</p>
+              <p className="text-2xl font-bold">${(filteredProjects.reduce((sum, p) => sum + p.budget, 0) / 1000000).toFixed(1)}M</p>
             </div>
             <div className="p-4 border rounded-lg">
-              <p className="text-sm text-muted-foreground">Suppliers</p>
-              <p className="text-2xl font-bold">{suppliers.length}</p>
+              <p className="text-sm text-muted-foreground">Total Purchase Orders</p>
+              <p className="text-2xl font-bold">{filteredPOs.length}</p>
             </div>
             <div className="p-4 border rounded-lg">
               <p className="text-sm text-muted-foreground">Completion Rate</p>
-              <p className="text-2xl font-bold">{Math.round((getProjectsByStatus('completed').length / projects.length) * 100)}%</p>
+              <p className="text-2xl font-bold">
+                {filteredProjects.length > 0 
+                  ? Math.round((filteredProjects.filter(p => p.status === 'completed').length / filteredProjects.length) * 100)
+                  : 0}%
+              </p>
             </div>
           </div>
         </CardContent>
