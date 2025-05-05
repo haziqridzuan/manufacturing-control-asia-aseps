@@ -3,16 +3,11 @@ export type Supplier = {
   id: string;
   name: string;
   country: string;
-  location: string;
   contactPerson: string;
   email: string;
   phone: string;
   rating: number;
   onTimeDeliveryRate: number;
-  comments?: {
-    positive?: string;
-    negative?: string;
-  };
 };
 
 export type ProjectStatus = 'pending' | 'in-progress' | 'delayed' | 'completed';
@@ -25,7 +20,6 @@ export type Project = {
   startDate: string;
   deadline: string;
   supplierId: string;
-  clientId: string;
   location: string;
   description: string;
   budget: number;
@@ -69,7 +63,6 @@ export type PurchaseOrder = {
   shipmentDate?: string;
   notes?: string;
   progress?: number;
-  amount?: number;
 };
 
 export type ExternalLinkType = 'weekly-report' | 'manufacturing-control' | 'shipment';

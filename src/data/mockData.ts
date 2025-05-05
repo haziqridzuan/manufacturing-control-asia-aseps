@@ -1,131 +1,58 @@
-import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus, Client } from "@/types";
+import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus } from "@/types";
 
-// Add clients array
-export const clients: Client[] = [
-  {
-    id: "c1",
-    name: "NYC Development Corp",
-    contactPerson: "Sarah Johnson",
-    email: "sarah@nycdevelopment.com",
-    phone: "+1 212-555-7890"
-  },
-  {
-    id: "c2",
-    name: "Tokyo Metro Authority",
-    contactPerson: "Takeshi Yamamoto",
-    email: "yamamoto@tokyometro.jp",
-    phone: "+81 3-5321-7654"
-  },
-  {
-    id: "c3",
-    name: "Berlin Commercial Developers",
-    contactPerson: "Franz Mueller",
-    email: "mueller@berlindev.de", 
-    phone: "+49 30 5557-1234"
-  },
-  {
-    id: "c4",
-    name: "Sao Paulo Infrastructure Group",
-    contactPerson: "Luiz Silva",
-    email: "luiz@spinfra.com.br",
-    phone: "+55 11 5555-9876"
-  },
-  {
-    id: "c5",
-    name: "Cape Town Airport Authority",
-    contactPerson: "Nkosi Mbeki",
-    email: "nkosi@ctairport.co.za",
-    phone: "+27 21 555-4321"
-  },
-  {
-    id: "c6",
-    name: "Dubai Property Development",
-    contactPerson: "Ahmed Al-Farsi",
-    email: "ahmed@dpd.ae",
-    phone: "+971 4 555-8765"
-  }
-];
-
-// Add location property to suppliers
 export const suppliers: Supplier[] = [
   {
     id: "s1",
     name: "Global Manufacturing Inc.",
     country: "United States",
-    location: "Chicago, IL, USA",
     contactPerson: "John Smith",
     email: "john.smith@globalmanufacturing.com",
     phone: "+1 555-123-4567",
     rating: 4.8,
-    onTimeDeliveryRate: 95,
-    comments: {
-      positive: "Consistently delivers high-quality products on time. Excellent communication throughout the process.",
-      negative: "Premium pricing compared to some competitors. Limited flexibility on rush orders."
-    }
+    onTimeDeliveryRate: 95
   },
   {
     id: "s2",
     name: "Asia Tech Solutions",
     country: "Japan",
-    location: "Tokyo, Japan",
     contactPerson: "Hiroshi Tanaka",
     email: "h.tanaka@asiatech.co.jp",
     phone: "+81 3-1234-5678",
     rating: 4.9,
-    onTimeDeliveryRate: 98,
-    comments: {
-      positive: "Exceptional quality control and precision manufacturing. Innovative technical solutions.",
-      negative: "Somewhat rigid production scheduling. Language barriers can occasionally cause delays."
-    }
+    onTimeDeliveryRate: 98
   },
   {
     id: "s3",
     name: "European Fabricators Ltd",
     country: "Germany",
-    location: "Munich, Germany",
     contactPerson: "Anna Mueller",
     email: "a.mueller@eurofab.de",
     phone: "+49 30 12345678",
     rating: 4.5,
-    onTimeDeliveryRate: 90,
-    comments: {
-      positive: "Excellent engineering capabilities. Thorough documentation and process control.",
-      negative: "Longer lead times than some competitors. Higher price points for specialized components."
-    }
+    onTimeDeliveryRate: 90
   },
   {
     id: "s4",
     name: "South America Materials Co.",
     country: "Brazil",
-    location: "Sao Paulo, Brazil",
     contactPerson: "Carlos Mendez",
     email: "carlos@samaterials.com.br",
     phone: "+55 11 98765-4321",
     rating: 4.2,
-    onTimeDeliveryRate: 85,
-    comments: {
-      positive: "Cost-effective solutions. Good communication and responsive to feedback.",
-      negative: "Quality can be inconsistent. Occasional shipping delays due to local logistics issues."
-    }
+    onTimeDeliveryRate: 85
   },
   {
     id: "s5",
     name: "African Industrial Partners",
     country: "South Africa",
-    location: "Johannesburg, South Africa",
     contactPerson: "David Nkosi",
     email: "david@africanindustrial.co.za",
     phone: "+27 11 987 6543",
     rating: 4.0,
-    onTimeDeliveryRate: 80,
-    comments: {
-      positive: "Competitive pricing. Growing technical capabilities. Excellent customer service.",
-      negative: "Limited capacity for very large orders. Some quality control issues with complex components."
-    }
+    onTimeDeliveryRate: 80
   },
 ];
 
-// Add clientId to projects
 export const projects: Project[] = [
   {
     id: "p1",
@@ -135,7 +62,6 @@ export const projects: Project[] = [
     startDate: "2025-01-15",
     deadline: "2025-07-30",
     supplierId: "s1",
-    clientId: "c1",
     location: "New York, USA",
     description: "Fabrication of custom steel components for a new office tower in Manhattan.",
     budget: 1500000,
@@ -185,7 +111,6 @@ export const projects: Project[] = [
     startDate: "2024-08-10",
     deadline: "2025-02-28",
     supplierId: "s2",
-    clientId: "c2",
     location: "Tokyo, Japan",
     description: "Custom steel and glass structures for a new metro station in Tokyo.",
     budget: 2200000,
@@ -235,7 +160,6 @@ export const projects: Project[] = [
     startDate: "2024-11-05",
     deadline: "2025-06-15",
     supplierId: "s3",
-    clientId: "c3",
     location: "Berlin, Germany",
     description: "Fabrication of structural elements for a new commercial complex.",
     budget: 1800000,
@@ -285,7 +209,6 @@ export const projects: Project[] = [
     startDate: "2025-06-01",
     deadline: "2025-12-15",
     supplierId: "s4",
-    clientId: "c4",
     location: "Sao Paulo, Brazil",
     description: "Custom steel components for a new bridge project.",
     budget: 2500000,
@@ -335,7 +258,6 @@ export const projects: Project[] = [
     startDate: "2025-01-20",
     deadline: "2025-09-30",
     supplierId: "s5",
-    clientId: "c5",
     location: "Cape Town, South Africa",
     description: "Fabrication of architectural elements for a new airport terminal.",
     budget: 1900000,
@@ -385,7 +307,6 @@ export const projects: Project[] = [
     startDate: "2025-03-01",
     deadline: "2025-11-15",
     supplierId: "s2",
-    clientId: "c6",
     location: "Dubai, UAE",
     description: "Manufacturing of custom glass and aluminum facade elements for a new skyscraper.",
     budget: 3200000,
@@ -429,7 +350,6 @@ export const projects: Project[] = [
   }
 ];
 
-// Fix property names in the purchase orders
 export const purchaseOrders: PurchaseOrder[] = [
   {
     id: "po1",
@@ -444,8 +364,7 @@ export const purchaseOrders: PurchaseOrder[] = [
     contractualDeadline: "2025-05-10",
     placedBy: "Sarah Johnson",
     status: "active",
-    notes: "Custom dimensions as per specifications",
-    amount: 120000
+    notes: "Custom dimensions as per specifications"
   },
   {
     id: "po2",
@@ -460,8 +379,7 @@ export const purchaseOrders: PurchaseOrder[] = [
     contractualDeadline: "2025-04-15",
     placedBy: "Sarah Johnson",
     status: "active",
-    notes: "Heat treated as per specifications",
-    amount: 85000
+    notes: "Heat treated as per specifications"
   },
   {
     id: "po3",
@@ -477,8 +395,7 @@ export const purchaseOrders: PurchaseOrder[] = [
     placedBy: "Takeshi Yamamoto",
     status: "completed",
     shipmentDate: "2025-01-05",
-    notes: "Special tempered glass with UV protection",
-    amount: 180000
+    notes: "Special tempered glass with UV protection"
   },
   {
     id: "po4",
@@ -493,8 +410,7 @@ export const purchaseOrders: PurchaseOrder[] = [
     contractualDeadline: "2024-12-20",
     placedBy: "Takeshi Yamamoto",
     status: "completed",
-    shipmentDate: "2024-12-15",
-    amount: 210000
+    shipmentDate: "2024-12-15"
   },
   {
     id: "po5",
@@ -509,8 +425,7 @@ export const purchaseOrders: PurchaseOrder[] = [
     contractualDeadline: "2025-02-28",
     placedBy: "Franz Mueller",
     status: "completed",
-    shipmentDate: "2025-02-25",
-    amount: 95000
+    shipmentDate: "2025-02-25"
   },
   {
     id: "po6",
@@ -524,8 +439,7 @@ export const purchaseOrders: PurchaseOrder[] = [
     dateCreated: "2024-11-20",
     contractualDeadline: "2025-04-15",
     placedBy: "Franz Mueller",
-    status: "active",
-    amount: 160000
+    status: "active"
   },
   {
     id: "po7",
@@ -539,8 +453,7 @@ export const purchaseOrders: PurchaseOrder[] = [
     dateCreated: "2025-02-05",
     contractualDeadline: "2025-06-20",
     placedBy: "Nkosi Mbeki",
-    status: "active",
-    amount: 110000
+    status: "active"
   },
   {
     id: "po8",
@@ -554,8 +467,7 @@ export const purchaseOrders: PurchaseOrder[] = [
     dateCreated: "2025-02-10",
     contractualDeadline: "2025-07-15",
     placedBy: "Nkosi Mbeki",
-    status: "active",
-    amount: 220000
+    status: "active"
   },
   {
     id: "po9",
@@ -569,8 +481,7 @@ export const purchaseOrders: PurchaseOrder[] = [
     dateCreated: "2025-03-15",
     contractualDeadline: "2025-08-10",
     placedBy: "Ahmed Al-Farsi",
-    status: "active",
-    amount: 190000
+    status: "active"
   },
   {
     id: "po10",
@@ -584,8 +495,7 @@ export const purchaseOrders: PurchaseOrder[] = [
     dateCreated: "2025-03-18",
     contractualDeadline: "2025-09-05",
     placedBy: "Ahmed Al-Farsi",
-    status: "active",
-    amount: 270000
+    status: "active"
   }
 ];
 
