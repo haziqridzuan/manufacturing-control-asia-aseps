@@ -278,7 +278,7 @@ export const projects: Project[] = [
       },
       {
         id: "m3p5",
-6 title: "Production Phase I",
+        title: "Production Phase I",
         dueDate: "2025-06-15",
         completed: false,
         projectId: "p5"
