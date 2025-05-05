@@ -14,6 +14,7 @@ import Analytics from "./pages/Analytics";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ProjectDetails from "./pages/ProjectDetails";
+import SupplierDetails from "./pages/SupplierDetails";
 import ExternalLinks from "./pages/ExternalLinks";
 import ExportData from "./pages/ExportData";
 

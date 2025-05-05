@@ -31,7 +31,7 @@ const SupplierDetails = () => {
   
   // Get the latest and oldest PO
   const sortedPOs = [...supplierPOs].sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
+    new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
   );
   const latestPO = sortedPOs[0];
   const oldestPO = sortedPOs[sortedPOs.length - 1];
@@ -94,15 +94,15 @@ const SupplierDetails = () => {
             <dl className="space-y-2 text-sm">
               <div>
                 <dt className="font-medium">First PO:</dt>
-                <dd>{oldestPO ? new Date(oldestPO.date).toLocaleDateString() : 'N/A'}</dd>
+                <dd>{oldestPO ? new Date(oldestPO.dateCreated).toLocaleDateString() : 'N/A'}</dd>
               </div>
               <div>
                 <dt className="font-medium">Latest PO:</dt>
-                <dd>{latestPO ? new Date(latestPO.date).toLocaleDateString() : 'N/A'}</dd>
+                <dd>{latestPO ? new Date(latestPO.dateCreated).toLocaleDateString() : 'N/A'}</dd>
               </div>
               <div>
                 <dt className="font-medium">Total Value:</dt>
-                <dd>${supplierPOs.reduce((sum, po) => sum + po.amount, 0).toLocaleString()}</dd>
+                <dd>${supplierPOs.reduce((sum, po) => sum + (po.amount || 0), 0).toLocaleString()}</dd>
               </div>
             </dl>
           </CardContent>
@@ -134,15 +134,15 @@ const SupplierDetails = () => {
               <TableBody>
                 {projectDetails.map(project => {
                   const projectPOs = supplierPOs.filter(po => po.projectId === project.id);
-                  const totalValue = projectPOs.reduce((sum, po) => sum + po.amount, 0);
+                  const totalValue = projectPOs.reduce((sum, po) => sum + (po.amount || 0), 0);
                   
                   return (
                     <TableRow key={project.id}>
                       <TableCell className="font-medium">{project.name}</TableCell>
                       <TableCell>
                         <Badge variant={
-                          project.status === 'completed' ? 'success' : 
-                          project.status === 'in-progress' ? 'warning' : 'default'
+                          project.status === 'completed' ? 'secondary' : 
+                          project.status === 'in-progress' ? 'default' : 'outline'
                         }>
                           {project.status}
                         </Badge>
@@ -178,12 +178,12 @@ const SupplierDetails = () => {
                     <TableRow key={po.id}>
                       <TableCell className="font-medium">{po.poNumber}</TableCell>
                       <TableCell>{project ? project.name : 'Unknown Project'}</TableCell>
-                      <TableCell>{new Date(po.date).toLocaleDateString()}</TableCell>
-                      <TableCell>${po.amount.toLocaleString()}</TableCell>
+                      <TableCell>{new Date(po.dateCreated).toLocaleDateString()}</TableCell>
+                      <TableCell>${po.amount ? po.amount.toLocaleString() : 'N/A'}</TableCell>
                       <TableCell>
                         <Badge variant={
-                          po.status === 'completed' ? 'success' : 
-                          po.status === 'in-progress' ? 'warning' : 'default'
+                          po.status === 'completed' ? 'secondary' : 
+                          po.status === 'active' ? 'default' : 'outline'
                         }>
                           {po.status}
                         </Badge>
