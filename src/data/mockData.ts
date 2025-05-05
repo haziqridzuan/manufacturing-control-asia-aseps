@@ -1,4 +1,56 @@
-import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus } from "@/types";
+import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus, SupplierComment } from "@/types";
+
+// Add comments to suppliers
+const supplierComments: SupplierComment[] = [
+  {
+    id: "sc1",
+    supplierId: "s1",
+    text: "Excellent quality and consistent deliveries. Their attention to detail in fabrication is outstanding.",
+    type: "positive",
+    date: "2025-04-10",
+    author: "John Davis"
+  },
+  {
+    id: "sc2",
+    supplierId: "s1",
+    text: "Occasionally slow to respond to urgent requests. Communication could be improved.",
+    type: "negative",
+    date: "2025-03-15",
+    author: "Michael Chen"
+  },
+  {
+    id: "sc3",
+    supplierId: "s2",
+    text: "Their precision engineering is world-class. Materials always meet our exact specifications.",
+    type: "positive",
+    date: "2025-04-02",
+    author: "Akira Tanaka"
+  },
+  {
+    id: "sc4",
+    supplierId: "s3",
+    text: "Strong technical expertise but sometimes inflexible with design modifications.",
+    type: "neutral",
+    date: "2025-02-20",
+    author: "Klaus Schmidt"
+  },
+  {
+    id: "sc5",
+    supplierId: "s4",
+    text: "Delivery delays have affected our project timeline multiple times.",
+    type: "negative",
+    date: "2025-01-30",
+    author: "Roberto Silva"
+  },
+  {
+    id: "sc6",
+    supplierId: "s5",
+    text: "Good value for cost, but quality control can be inconsistent.",
+    type: "neutral",
+    date: "2025-03-05",
+    author: "David Nkosi"
+  }
+];
 
 export const suppliers: Supplier[] = [
   {
@@ -9,7 +61,9 @@ export const suppliers: Supplier[] = [
     email: "john.smith@globalmanufacturing.com",
     phone: "+1 555-123-4567",
     rating: 4.8,
-    onTimeDeliveryRate: 95
+    onTimeDeliveryRate: 95,
+    comments: supplierComments.filter(c => c.supplierId === "s1"),
+    location: "Chicago, Illinois"
   },
   {
     id: "s2",
@@ -19,7 +73,9 @@ export const suppliers: Supplier[] = [
     email: "h.tanaka@asiatech.co.jp",
     phone: "+81 3-1234-5678",
     rating: 4.9,
-    onTimeDeliveryRate: 98
+    onTimeDeliveryRate: 98,
+    comments: supplierComments.filter(c => c.supplierId === "s2"),
+    location: "Tokyo, Japan"
   },
   {
     id: "s3",
@@ -29,7 +85,9 @@ export const suppliers: Supplier[] = [
     email: "a.mueller@eurofab.de",
     phone: "+49 30 12345678",
     rating: 4.5,
-    onTimeDeliveryRate: 90
+    onTimeDeliveryRate: 90,
+    comments: supplierComments.filter(c => c.supplierId === "s3"),
+    location: "Berlin, Germany"
   },
   {
     id: "s4",
@@ -39,7 +97,9 @@ export const suppliers: Supplier[] = [
     email: "carlos@samaterials.com.br",
     phone: "+55 11 98765-4321",
     rating: 4.2,
-    onTimeDeliveryRate: 85
+    onTimeDeliveryRate: 85,
+    comments: supplierComments.filter(c => c.supplierId === "s4"),
+    location: "São Paulo, Brazil"
   },
   {
     id: "s5",
@@ -49,7 +109,9 @@ export const suppliers: Supplier[] = [
     email: "david@africanindustrial.co.za",
     phone: "+27 11 987 6543",
     rating: 4.0,
-    onTimeDeliveryRate: 80
+    onTimeDeliveryRate: 80,
+    comments: supplierComments.filter(c => c.supplierId === "s5"),
+    location: "Johannesburg, South Africa"
   },
 ];
 
@@ -589,4 +651,10 @@ export const getPOsByStatus = (status: POStatus): PurchaseOrder[] => {
 // Get purchase order by ID
 export const getPOById = (id: string): PurchaseOrder | undefined => {
   return purchaseOrders.find(po => po.id === id);
+};
+
+// Add a helper function to get comments by supplier ID
+export const getCommentsBySupplierId = (supplierId: string): SupplierComment[] => {
+  const supplier = suppliers.find(s => s.id === supplierId);
+  return supplier?.comments || [];
 };

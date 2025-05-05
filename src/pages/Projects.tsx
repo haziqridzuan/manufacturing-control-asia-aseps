@@ -117,7 +117,7 @@ const Projects = () => {
                         </Link>
                       </td>
                       <td className="py-3 px-4">
-                        <Link to={`/suppliers/${supplier?.id}`} className="hover:underline">
+                        <Link to={`/supplier/${supplier?.id}`} className="hover:underline">
                           {supplier?.name}
                         </Link>
                       </td>

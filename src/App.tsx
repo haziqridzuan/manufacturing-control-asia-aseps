@@ -14,6 +14,7 @@ import Analytics from "./pages/Analytics";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ProjectDetails from "./pages/ProjectDetails";
+import SupplierDetails from "./pages/SupplierDetails";
 import ExternalLinks from "./pages/ExternalLinks";
 
 const queryClient = new QueryClient();
@@ -29,7 +30,7 @@ const App = () => (
           <Route path="/projects" element={<Layout><Projects /></Layout>} />
           <Route path="/project/:id" element={<Layout><ProjectDetails /></Layout>} />
           <Route path="/suppliers" element={<Layout><Suppliers /></Layout>} />
-          <Route path="/supplier/:id" element={<Layout><ProjectDetails /></Layout>} />
+          <Route path="/supplier/:id" element={<Layout><SupplierDetails /></Layout>} />
           <Route path="/timeline" element={<Layout><Timeline /></Layout>} />
           <Route path="/map" element={<Layout><GlobalMap /></Layout>} />
           <Route path="/analytics" element={<Layout><Analytics /></Layout>} />

@@ -1,4 +1,3 @@
-
 export type Supplier = {
   id: string;
   name: string;
@@ -8,6 +7,17 @@ export type Supplier = {
   phone: string;
   rating: number;
   onTimeDeliveryRate: number;
+  comments?: SupplierComment[];
+  location?: string;
+};
+
+export type SupplierComment = {
+  id: string;
+  supplierId: string;
+  text: string;
+  type: 'positive' | 'negative' | 'neutral';
+  date: string;
+  author?: string;
 };
 
 export type ProjectStatus = 'pending' | 'in-progress' | 'delayed' | 'completed';
