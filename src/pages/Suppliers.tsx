@@ -29,7 +29,6 @@ const Suppliers = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Suppliers</h1>
-        <Button>Add Supplier</Button>
       </div>
       
       <Card>
@@ -69,7 +68,7 @@ const Suppliers = () => {
                   return (
                     <tr key={supplier.id} className="border-b last:border-0 hover:bg-muted/50">
                       <td className="py-3 px-4">
-                        <Link to={`/suppliers/${supplier.id}`} className="font-medium hover:underline">
+                        <Link to={`/supplier/${supplier.id}`} className="font-medium hover:underline">
                           {supplier.name}
                         </Link>
                       </td>

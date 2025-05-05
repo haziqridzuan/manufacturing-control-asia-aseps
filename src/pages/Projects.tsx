@@ -44,7 +44,6 @@ const Projects = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Projects</h1>
-        <Button>New Project</Button>
       </div>
       
       <Card>
@@ -113,7 +112,7 @@ const Projects = () => {
                   return (
                     <tr key={project.id} className="border-b last:border-0 hover:bg-muted/50">
                       <td className="py-3 px-4">
-                        <Link to={`/projects/${project.id}`} className="font-medium hover:underline">
+                        <Link to={`/project/${project.id}`} className="font-medium hover:underline">
                           {project.name}
                         </Link>
                       </td>

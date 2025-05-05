@@ -1,5 +1,4 @@
 
-
 export type Supplier = {
   id: string;
   name: string;
@@ -55,12 +54,47 @@ export type PurchaseOrder = {
   partName: string;
   quantity: number;
   supplierId: string;
+  clientId: string;
   clientName: string;
   dateCreated: string;
-  deadline?: string;
+  contractualDeadline?: string;
   placedBy: string;
   status: POStatus;
   shipmentDate?: string;
   notes?: string;
+  progress?: number;
 };
 
+export type ExternalLinkType = 'weekly-report' | 'manufacturing-control' | 'shipment';
+
+export type ExternalLink = {
+  id: string;
+  title: string;
+  url: string;
+  type: ExternalLinkType;
+  projectId?: string;
+  poId?: string;
+  description?: string;
+  dateAdded: string;
+};
+
+export type Client = {
+  id: string;
+  name: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  address?: string;
+  country?: string;
+  notes?: string;
+};
+
+export type TeamMember = {
+  id: string;
+  name: string;
+  role: string;
+  email: string;
+  phone?: string;
+  department?: string;
+  photo?: string;
+};
