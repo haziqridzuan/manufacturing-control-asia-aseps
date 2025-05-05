@@ -1,11 +1,10 @@
-
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { AreaChart, Home, MapPin, CalendarDays, Users, Settings, Package, Link2 } from 'lucide-react';
 
 const Sidebar = () => {
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   const links = [
     {
