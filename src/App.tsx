@@ -9,7 +9,6 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Suppliers from "./pages/Suppliers";
 import Timeline from "./pages/Timeline";
-import GlobalMap from "./pages/GlobalMap";
 import Analytics from "./pages/Analytics";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
@@ -32,7 +31,6 @@ const App = () => (
           <Route path="/suppliers" element={<Layout><Suppliers /></Layout>} />
           <Route path="/supplier/:id" element={<Layout><SupplierDetails /></Layout>} />
           <Route path="/timeline" element={<Layout><Timeline /></Layout>} />
-          <Route path="/map" element={<Layout><GlobalMap /></Layout>} />
           <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
           <Route path="/external-links" element={<Layout><ExternalLinks /></Layout>} />
           <Route path="/admin" element={<Layout><Admin /></Layout>} />
