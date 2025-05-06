@@ -1,38 +1,37 @@
 
 import { Database } from '@/integrations/supabase/types';
 
-// Define types from the Database type
-export type TablesInsert = Database['public']['Tables']['Insert'];
-export type TablesRow = Database['public']['Tables']['Row'];
+// Define types using the correct structure from the Database type
+export type Tables = Database['public']['Tables'];
 
 // Suppliers
-export type SupplierRow = TablesRow['suppliers'];
-export type SupplierInsert = TablesInsert['suppliers'];
+export type SupplierRow = Tables['suppliers']['Row'];
+export type SupplierInsert = Tables['suppliers']['Insert'];
 
 // Projects
-export type ProjectRow = TablesRow['projects'];
-export type ProjectInsert = TablesInsert['projects'];
+export type ProjectRow = Tables['projects']['Row'];
+export type ProjectInsert = Tables['projects']['Insert'];
 
 // Purchase Orders
-export type PurchaseOrderRow = TablesRow['purchase_orders'];
-export type PurchaseOrderInsert = TablesInsert['purchase_orders'];
+export type PurchaseOrderRow = Tables['purchase_orders']['Row'];
+export type PurchaseOrderInsert = Tables['purchase_orders']['Insert'];
 
 // Milestones
-export type MilestoneRow = TablesRow['milestones'];
-export type MilestoneInsert = TablesInsert['milestones'];
+export type MilestoneRow = Tables['milestones']['Row'];
+export type MilestoneInsert = Tables['milestones']['Insert'];
 
 // Supplier Comments
-export type SupplierCommentRow = TablesRow['supplier_comments'];
-export type SupplierCommentInsert = TablesInsert['supplier_comments'];
+export type SupplierCommentRow = Tables['supplier_comments']['Row'];
+export type SupplierCommentInsert = Tables['supplier_comments']['Insert'];
 
 // External Links
-export type ExternalLinkRow = TablesRow['external_links'];
-export type ExternalLinkInsert = TablesInsert['external_links'];
+export type ExternalLinkRow = Tables['external_links']['Row'];
+export type ExternalLinkInsert = Tables['external_links']['Insert'];
 
 // Clients
-export type ClientRow = TablesRow['clients'];
-export type ClientInsert = TablesInsert['clients'];
+export type ClientRow = Tables['clients']['Row'];
+export type ClientInsert = Tables['clients']['Insert'];
 
 // Team Members
-export type TeamMemberRow = TablesRow['team_members'];
-export type TeamMemberInsert = TablesInsert['team_members'];
+export type TeamMemberRow = Tables['team_members']['Row'];
+export type TeamMemberInsert = Tables['team_members']['Insert'];
