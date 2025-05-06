@@ -211,7 +211,7 @@ const SupplierDetails = () => {
                         <TableCell className="font-medium">{project.name}</TableCell>
                         <TableCell>
                           <Badge variant={
-                            project.status === 'completed' ? 'success' :
+                            project.status === 'completed' ? 'secondary' :
                             project.status === 'in-progress' ? 'default' :
                             project.status === 'delayed' ? 'destructive' : 'outline'
                           }>
@@ -282,7 +282,7 @@ const SupplierDetails = () => {
                           <TableCell>{po.quantity}</TableCell>
                           <TableCell>
                             <Badge variant={
-                              po.status === 'completed' ? 'success' :
+                              po.status === 'completed' ? 'secondary' :
                               po.status === 'active' ? 'default' :
                               'destructive'
                             }>
@@ -317,7 +317,7 @@ const SupplierDetails = () => {
                     <div key={comment.id} className="border rounded-md p-4">
                       <div className="flex justify-between">
                         <Badge variant={
-                          comment.type === 'positive' ? 'success' :
+                          comment.type === 'positive' ? 'secondary' :
                           comment.type === 'negative' ? 'destructive' : 
                           'outline'
                         }>
