@@ -1,57 +1,56 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ExternalLink, ExternalLinkType } from "@/types";
-import { FileArchive, FileText, Link2 } from "lucide-react";
-
-// Mock data for external links - in a real app, this would come from the API
-const externalLinks: ExternalLink[] = [
-  {
-    id: "link1",
-    title: "Weekly Report - Project Alpha",
-    url: "https://example.com/reports/alpha-week-12",
-    type: "weekly-report",
-    projectId: "p1",
-    dateAdded: "2025-04-28"
-  },
-  {
-    id: "link2",
-    title: "Manufacturing Photos - Chassis Components",
-    url: "https://example.com/manufacturing/photos/chassis",
-    type: "manufacturing-control",
-    projectId: "p2",
-    poId: "po2",
-    dateAdded: "2025-04-25"
-  },
-  {
-    id: "link3",
-    title: "Shipment Tracking - Engine Parts",
-    url: "https://example.com/shipment/tracking/engine-parts",
-    type: "shipment",
-    projectId: "p1",
-    poId: "po1",
-    dateAdded: "2025-04-22"
-  }
-];
+import { ExternalLinkType } from "@/types";
+import { FileArchive, FileText, Link2, Plus } from "lucide-react";
+import { useExternalLinksData } from "@/hooks/useExternalLinksData";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { format, parseISO } from "date-fns";
+import { useForm, Controller } from "react-hook-form";
+import { ExternalLinkInsert } from "@/types/supabaseTypes";
 
 const ExternalLinks = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<ExternalLinkType | "all">("all");
+  const { externalLinks, isLoading, createExternalLink } = useExternalLinksData();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ExternalLinkInsert>({
+    defaultValues: {
+      title: '',
+      url: '',
+      type: 'weekly-report',
+      description: ''
+    }
+  });
+
+  const onSubmit = (data: ExternalLinkInsert) => {
+    createExternalLink({
+      ...data,
+      date_added: new Date().toISOString()
+    });
+    reset();
+    setDialogOpen(false);
+  };
+  
+  const externalLinksData = externalLinks.data || [];
   
   // Filter links based on search term and type
-  const filteredLinks = externalLinks.filter(link => {
+  const filteredLinks = externalLinksData.filter(link => {
     const matchesSearch = link.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          link.description?.toLowerCase().includes(searchTerm.toLowerCase());
+                         (link.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
     const matchesType = filterType === "all" || link.type === filterType;
     
     return matchesSearch && matchesType;
   });
   
-  const getLinkIcon = (type: ExternalLinkType) => {
+  const getLinkIcon = (type: string) => {
     switch (type) {
       case "weekly-report":
         return <FileText className="h-5 w-5 text-blue-500" />;
@@ -64,10 +63,101 @@ const ExternalLinks = () => {
     }
   };
   
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-64">Loading external links...</div>;
+  }
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">External Resources</h1>
+        
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add External Link
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <DialogHeader>
+                <DialogTitle>Add New External Link</DialogTitle>
+                <DialogDescription>
+                  Add a link to an external resource or document related to your projects.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="title">Title</Label>
+                  <Input 
+                    id="title" 
+                    {...register("title", { required: "Title is required" })}
+                  />
+                  {errors.title && (
+                    <p className="text-sm text-red-500">{errors.title.message}</p>
+                  )}
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="url">URL</Label>
+                  <Input 
+                    id="url" 
+                    {...register("url", { 
+                      required: "URL is required",
+                      pattern: {
+                        value: /^https?:\/\/.+/i,
+                        message: "Please enter a valid URL starting with http:// or https://"
+                      }
+                    })}
+                  />
+                  {errors.url && (
+                    <p className="text-sm text-red-500">{errors.url.message}</p>
+                  )}
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="type">Type</Label>
+                  <Controller
+                    name="type"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="weekly-report">Weekly Report</SelectItem>
+                          <SelectItem value="manufacturing-control">Manufacturing Control</SelectItem>
+                          <SelectItem value="shipment">Shipment</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Description (Optional)</Label>
+                  <Textarea 
+                    id="description" 
+                    {...register("description")}
+                  />
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">Add Link</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
       
       <Card>
@@ -114,7 +204,9 @@ const ExternalLinks = () => {
                     <p className="text-sm text-muted-foreground">
                       {link.description || `${link.type.replace("-", " ")} document`}
                     </p>
-                    <p className="text-xs text-muted-foreground">Added: {link.dateAdded}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Added: {format(parseISO(link.date_added), 'MMM d, yyyy')}
+                    </p>
                   </div>
                 </div>
                 <div className="border-t p-4">
