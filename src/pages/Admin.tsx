@@ -10,6 +10,15 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useQueryClient } from "@tanstack/react-query";
 import { generateSampleData } from "@/utils/sampleDataGenerator";
 
+// Define table names as a type to ensure type safety
+type TableName = "clients" | "projects" | "purchase_orders" | "milestones" | 
+                "external_links" | "supplier_comments" | "suppliers" | "team_members";
+
+interface TableInfo {
+  name: TableName;
+  label: string;
+}
+
 const Admin = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -17,7 +26,7 @@ const Admin = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const queryClient = useQueryClient();
   
-  const tables = [
+  const tables: TableInfo[] = [
     { name: "suppliers", label: "Suppliers" },
     { name: "projects", label: "Projects" },
     { name: "purchase_orders", label: "Purchase Orders" },
