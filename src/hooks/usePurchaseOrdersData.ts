@@ -55,6 +55,7 @@ export function usePurchaseOrdersData() {
       createPurchaseOrderMutation.isPending || 
       updatePurchaseOrderMutation.isPending || 
       deletePurchaseOrderMutation.isPending,
+    refetch: purchaseOrders.refetch, // Add the refetch function here
   };
 }
 

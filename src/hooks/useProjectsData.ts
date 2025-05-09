@@ -55,6 +55,7 @@ export function useProjectsData() {
       createProjectMutation.isPending || 
       updateProjectMutation.isPending || 
       deleteProjectMutation.isPending,
+    refetch: projects.refetch, // Add the refetch function here
   };
 }
 
