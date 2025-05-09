@@ -16,7 +16,17 @@ import ProjectDetails from "./pages/ProjectDetails";
 import SupplierDetails from "./pages/SupplierDetails";
 import ExternalLinks from "./pages/ExternalLinks";
 
-const queryClient = new QueryClient();
+// Configure QueryClient for real-time updates
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      staleTime: 30 * 1000, // 30 seconds
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

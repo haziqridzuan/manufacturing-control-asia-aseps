@@ -16,6 +16,9 @@ export function useProjectsData() {
     mutationFn: (newProject: ProjectInsert) => createProject(newProject),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      // Also invalidate any related data that might be affected
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['milestones'] });
       toast.success('Project created successfully');
     },
     onError: (error) => {
@@ -28,6 +31,9 @@ export function useProjectsData() {
       updateProject(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      // Also invalidate any related data that might be affected
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['milestones'] });
       toast.success('Project updated successfully');
     },
     onError: (error) => {
@@ -39,6 +45,9 @@ export function useProjectsData() {
     mutationFn: deleteProject,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      // Also invalidate any related data that might be affected
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['milestones'] });
       toast.success('Project deleted successfully');
     },
     onError: (error) => {
@@ -55,15 +64,26 @@ export function useProjectsData() {
       createProjectMutation.isPending || 
       updateProjectMutation.isPending || 
       deleteProjectMutation.isPending,
-    refetch: projects.refetch, // Add the refetch function here
+    refetch: projects.refetch,
   };
 }
 
 export function useProjectData(id: string | undefined) {
+  const queryClient = useQueryClient();
+  
   return useQuery({
     queryKey: ['project', id],
     queryFn: () => id ? getProjectById(id) : null,
     enabled: !!id,
+    onSuccess: (data) => {
+      // Update the projects cache with this individual project data
+      queryClient.setQueryData(['projects'], (oldData: any) => {
+        if (!oldData || !data) return oldData;
+        
+        const projects = oldData.filter((p: any) => p.id !== id);
+        return [...projects, data];
+      });
+    }
   });
 }
 

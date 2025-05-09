@@ -16,6 +16,8 @@ export function usePurchaseOrdersData() {
     mutationFn: (newPO: PurchaseOrderInsert) => createPurchaseOrder(newPO),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      // Also invalidate related queries that might be affected
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
       toast.success('Purchase order created successfully');
     },
     onError: (error) => {
@@ -28,6 +30,8 @@ export function usePurchaseOrdersData() {
       updatePurchaseOrder(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      // Also invalidate related queries that might be affected
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
       toast.success('Purchase order updated successfully');
     },
     onError: (error) => {
@@ -39,6 +43,8 @@ export function usePurchaseOrdersData() {
     mutationFn: deletePurchaseOrder,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      // Also invalidate related queries that might be affected
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
       toast.success('Purchase order deleted successfully');
     },
     onError: (error) => {
@@ -55,15 +61,26 @@ export function usePurchaseOrdersData() {
       createPurchaseOrderMutation.isPending || 
       updatePurchaseOrderMutation.isPending || 
       deletePurchaseOrderMutation.isPending,
-    refetch: purchaseOrders.refetch, // Add the refetch function here
+    refetch: purchaseOrders.refetch,
   };
 }
 
 export function usePurchaseOrderData(id: string | undefined) {
+  const queryClient = useQueryClient();
+  
   return useQuery({
     queryKey: ['purchaseOrder', id],
     queryFn: () => id ? getPurchaseOrderById(id) : null,
     enabled: !!id,
+    onSuccess: (data) => {
+      // Update the purchaseOrders cache with this individual PO data
+      queryClient.setQueryData(['purchaseOrders'], (oldData: any) => {
+        if (!oldData || !data) return oldData;
+        
+        const purchaseOrders = oldData.filter((po: any) => po.id !== id);
+        return [...purchaseOrders, data];
+      });
+    }
   });
 }
 
