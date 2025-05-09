@@ -9,8 +9,12 @@ import { Button } from "@/components/ui/button";
 import { projects, suppliers, getSupplierById, getDaysRemaining, formatDate, purchaseOrders, getActivePOs, getCompletedPOs } from "@/data/mockData";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { usePurchaseOrdersData } from "@/hooks/usePurchaseOrdersData";
 
 const Dashboard = () => {
+  // Get purchase orders data
+  const { purchaseOrders: poData, isLoading } = usePurchaseOrdersData();
+  
   // Calculate metrics
   const totalProjects = projects.length;
   const completedProjects = projects.filter(p => p.status === "completed").length;
@@ -23,11 +27,17 @@ const Dashboard = () => {
   const completedPOs = getCompletedPOs().length;
   const totalPOs = purchaseOrders.length;
   
-  // Get upcoming deadlines (projects sorted by nearest deadline)
-  const upcomingDeadlines = [...projects]
-    .filter(p => p.status !== "completed")
-    .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
-    .slice(0, 5);
+  // Get upcoming PO deadlines (sorted by nearest contractual deadline)
+  const upcomingPODeadlines = poData?.data 
+    ? [...poData.data]
+        .filter(po => po.status !== "completed" && po.contractual_deadline)
+        .sort((a, b) => {
+          if (!a.contractual_deadline) return 1;
+          if (!b.contractual_deadline) return -1;
+          return new Date(a.contractual_deadline).getTime() - new Date(b.contractual_deadline).getTime();
+        })
+        .slice(0, 5)
+    : [];
 
   return (
     <div className="space-y-6">
@@ -135,40 +145,45 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        {/* Upcoming Deadlines */}
+        {/* Upcoming Purchase Order Deadlines */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Upcoming Deadlines</CardTitle>
+            <CardTitle className="text-lg">Upcoming PO Deadlines</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {upcomingDeadlines.map(project => {
-                const supplier = getSupplierById(project.supplierId);
-                const daysRemaining = getDaysRemaining(project.deadline);
+              {isLoading && <div className="text-center py-4">Loading purchase orders...</div>}
+              
+              {!isLoading && upcomingPODeadlines.length > 0 && upcomingPODeadlines.map(po => {
+                const daysRemaining = po.contractual_deadline 
+                  ? getDaysRemaining(po.contractual_deadline) 
+                  : null;
                 
                 return (
-                  <div key={project.id} className="flex items-center justify-between">
+                  <div key={po.id} className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-medium">{project.name}</h3>
+                      <h3 className="font-medium">{po.po_number}</h3>
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <span>{supplier?.name}</span>
+                        <span>{po.part_name}</span>
                         <span>•</span>
-                        <StatusBadge status={project.status} />
+                        <StatusBadge status={po.status} />
                       </div>
                     </div>
                     <div className="text-right">
                       <div className={cn(
                         "font-medium",
+                        !daysRemaining ? "" :
                         daysRemaining < 0 ? "text-status-delayed" : 
                         daysRemaining < 7 ? "text-status-in-progress" : 
                         "text-status-pending"
                       )}>
-                        {formatDate(project.deadline)}
+                        {po.contractual_deadline ? formatDate(po.contractual_deadline) : "No deadline"}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {daysRemaining < 0 
-                          ? `${Math.abs(daysRemaining)} days overdue` 
-                          : `${daysRemaining} days remaining`
+                        {!daysRemaining ? "No deadline" :
+                          daysRemaining < 0 
+                            ? `${Math.abs(daysRemaining)} days overdue` 
+                            : `${daysRemaining} days remaining`
                         }
                       </div>
                     </div>
@@ -176,9 +191,9 @@ const Dashboard = () => {
                 );
               })}
               
-              {upcomingDeadlines.length === 0 && (
+              {!isLoading && upcomingPODeadlines.length === 0 && (
                 <div className="text-center py-4 text-muted-foreground">
-                  No upcoming deadlines
+                  No upcoming purchase order deadlines
                 </div>
               )}
               

@@ -1,14 +1,19 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Download, Upload, RefreshCw, Database } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Download, Upload, RefreshCw, Database, User, Package, ShoppingCart, Users, Building } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useQueryClient } from "@tanstack/react-query";
 import { generateSampleData } from "@/utils/sampleDataGenerator";
+import ManageProjects from "@/components/admin/ManageProjects";
+import ManageSuppliers from "@/components/admin/ManageSuppliers";
+import ManagePurchaseOrders from "@/components/admin/ManagePurchaseOrders";
+import ManageClients from "@/components/admin/ManageClients";
 
 // Define table names as a type to ensure type safety
 type TableName = "clients" | "projects" | "purchase_orders" | "milestones" | 
@@ -19,11 +24,17 @@ interface TableInfo {
   label: string;
 }
 
+const PASSWORD = "12345";
+
 const Admin = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [activeTab, setActiveTab] = useState("data-management");
+  const [entityTab, setEntityTab] = useState("projects");
   const queryClient = useQueryClient();
   
   const tables: TableInfo[] = [
@@ -36,6 +47,24 @@ const Admin = () => {
     { name: "clients", label: "Clients" },
     { name: "team_members", label: "Team Members" },
   ];
+
+  const handleLogin = () => {
+    if (password === PASSWORD) {
+      setAuthenticated(true);
+      toast.success("Successfully authenticated");
+      localStorage.setItem("admin_authenticated", "true");
+    } else {
+      toast.error("Incorrect password");
+    }
+  };
+  
+  // Check if already authenticated
+  useEffect(() => {
+    const isAuth = localStorage.getItem("admin_authenticated") === "true";
+    if (isAuth) {
+      setAuthenticated(true);
+    }
+  }, []);
 
   const exportData = async () => {
     try {
@@ -176,15 +205,66 @@ const Admin = () => {
     }
   };
 
+  // Login screen if not authenticated
+  if (!authenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-[80vh]">
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle>Admin Authentication</CardTitle>
+            <CardDescription>
+              Please enter the admin password to continue
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="password" className="text-sm font-medium">Password</label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleLogin();
+                    }
+                  }}
+                />
+              </div>
+              <Button
+                onClick={handleLogin}
+                className="w-full"
+              >
+                Login
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <Button 
+          onClick={() => {
+            localStorage.removeItem("admin_authenticated");
+            setAuthenticated(false);
+          }}
+          variant="outline"
+        >
+          Logout
+        </Button>
       </div>
       
-      <Tabs defaultValue="data-management">
-        <TabsList className="grid grid-cols-2 mb-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-3 mb-4">
           <TabsTrigger value="data-management">Data Management</TabsTrigger>
+          <TabsTrigger value="entity-management">Entity Management</TabsTrigger>
           <TabsTrigger value="system-info">System Info</TabsTrigger>
         </TabsList>
         
@@ -297,6 +377,51 @@ const Admin = () => {
           </Card>
         </TabsContent>
         
+        <TabsContent value="entity-management">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Entity Management</CardTitle>
+              <CardDescription>
+                Create, update, and delete entities
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs value={entityTab} onValueChange={setEntityTab}>
+                <TabsList className="mb-4">
+                  <TabsTrigger value="projects" className="flex items-center">
+                    <Package className="mr-1 h-4 w-4" /> Projects
+                  </TabsTrigger>
+                  <TabsTrigger value="suppliers" className="flex items-center">
+                    <Users className="mr-1 h-4 w-4" /> Suppliers
+                  </TabsTrigger>
+                  <TabsTrigger value="purchaseOrders" className="flex items-center">
+                    <ShoppingCart className="mr-1 h-4 w-4" /> POs
+                  </TabsTrigger>
+                  <TabsTrigger value="clients" className="flex items-center">
+                    <Building className="mr-1 h-4 w-4" /> Clients
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="projects">
+                  <ManageProjects />
+                </TabsContent>
+                
+                <TabsContent value="suppliers">
+                  <ManageSuppliers />
+                </TabsContent>
+                
+                <TabsContent value="purchaseOrders">
+                  <ManagePurchaseOrders />
+                </TabsContent>
+                
+                <TabsContent value="clients">
+                  <ManageClients />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
         <TabsContent value="system-info">
           <Card>
             <CardHeader>
@@ -308,19 +433,19 @@ const Admin = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 border rounded-md">
+                  <div className="p-4 border rounded-md dark:border-gray-700">
                     <div className="text-sm text-muted-foreground">Database Status</div>
                     <div className="font-medium">Connected</div>
                   </div>
-                  <div className="p-4 border rounded-md">
+                  <div className="p-4 border rounded-md dark:border-gray-700">
                     <div className="text-sm text-muted-foreground">Version</div>
                     <div className="font-medium">1.0.0</div>
                   </div>
-                  <div className="p-4 border rounded-md">
+                  <div className="p-4 border rounded-md dark:border-gray-700">
                     <div className="text-sm text-muted-foreground">Database Provider</div>
                     <div className="font-medium">Supabase</div>
                   </div>
-                  <div className="p-4 border rounded-md">
+                  <div className="p-4 border rounded-md dark:border-gray-700">
                     <div className="text-sm text-muted-foreground">API Status</div>
                     <div className="font-medium">Online</div>
                   </div>
@@ -328,20 +453,20 @@ const Admin = () => {
                 
                 <div className="mt-6">
                   <h3 className="text-base font-medium mb-2">Database Tables</h3>
-                  <div className="border rounded-md overflow-hidden">
-                    <table className="min-w-full bg-white">
+                  <div className="border rounded-md overflow-hidden dark:border-gray-700">
+                    <table className="min-w-full bg-white dark:bg-gray-800">
                       <thead>
                         <tr>
-                          <th className="py-2 px-4 border-b text-left">Table Name</th>
-                          <th className="py-2 px-4 border-b text-left">Status</th>
+                          <th className="py-2 px-4 border-b text-left dark:border-gray-700">Table Name</th>
+                          <th className="py-2 px-4 border-b text-left dark:border-gray-700">Status</th>
                         </tr>
                       </thead>
                       <tbody>
                         {tables.map(table => (
-                          <tr key={table.name} className="border-b last:border-0">
+                          <tr key={table.name} className="border-b last:border-0 dark:border-gray-700">
                             <td className="py-2 px-4">{table.label}</td>
                             <td className="py-2 px-4">
-                              <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700">
+                              <span className="inline-flex items-center rounded-full bg-green-50 dark:bg-green-900/20 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400">
                                 Available
                               </span>
                             </td>
