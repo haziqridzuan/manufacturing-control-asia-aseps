@@ -68,20 +68,24 @@ export function usePurchaseOrdersData() {
 export function usePurchaseOrderData(id: string | undefined) {
   const queryClient = useQueryClient();
   
-  return useQuery({
+  const query = useQuery({
     queryKey: ['purchaseOrder', id],
     queryFn: () => id ? getPurchaseOrderById(id) : null,
     enabled: !!id,
-    onSuccess: (data) => {
-      // Update the purchaseOrders cache with this individual PO data
-      queryClient.setQueryData(['purchaseOrders'], (oldData: any) => {
-        if (!oldData || !data) return oldData;
-        
-        const purchaseOrders = oldData.filter((po: any) => po.id !== id);
-        return [...purchaseOrders, data];
-      });
-    }
   });
+
+  // Update the cache separately
+  const data = query.data;
+  if (data && id) {
+    queryClient.setQueryData(['purchaseOrders'], (oldData: any) => {
+      if (!oldData) return oldData;
+      
+      const purchaseOrders = oldData.filter((po: any) => po.id !== id);
+      return [...purchaseOrders, data];
+    });
+  }
+  
+  return query;
 }
 
 export function useProjectPurchaseOrdersData(projectId: string | undefined) {

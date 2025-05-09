@@ -71,20 +71,24 @@ export function useProjectsData() {
 export function useProjectData(id: string | undefined) {
   const queryClient = useQueryClient();
   
-  return useQuery({
+  const query = useQuery({
     queryKey: ['project', id],
     queryFn: () => id ? getProjectById(id) : null,
     enabled: !!id,
-    onSuccess: (data) => {
-      // Update the projects cache with this individual project data
-      queryClient.setQueryData(['projects'], (oldData: any) => {
-        if (!oldData || !data) return oldData;
-        
-        const projects = oldData.filter((p: any) => p.id !== id);
-        return [...projects, data];
-      });
-    }
   });
+
+  // Update the cache separately
+  const data = query.data;
+  if (data && id) {
+    queryClient.setQueryData(['projects'], (oldData: any) => {
+      if (!oldData) return oldData;
+      
+      const projects = oldData.filter((p: any) => p.id !== id);
+      return [...projects, data];
+    });
+  }
+  
+  return query;
 }
 
 export function useSupplierProjectsData(supplierId: string | undefined) {
