@@ -1,4 +1,3 @@
-
 import { BarChart, PieChart } from "recharts";
 import { Package, Users, Calendar, ArrowRight, Gauge, Clock, Check, Database, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +9,7 @@ import { projects, suppliers, getSupplierById, getDaysRemaining, formatDate, pur
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { usePurchaseOrdersData } from "@/hooks/usePurchaseOrdersData";
+import { ProjectStatus } from "@/types";
 
 const Dashboard = () => {
   // Get purchase orders data
@@ -102,7 +102,7 @@ const Dashboard = () => {
               </div>
               <ProgressBar 
                 progress={Math.round((completedProjects / totalProjects) * 100)} 
-                status="completed" 
+                status={"completed" as ProjectStatus} 
               />
               
               <div className="flex justify-between">
@@ -111,7 +111,7 @@ const Dashboard = () => {
               </div>
               <ProgressBar 
                 progress={Math.round((inProgressProjects / totalProjects) * 100)} 
-                status="in-progress" 
+                status={"in-progress" as ProjectStatus} 
               />
               
               <div className="flex justify-between">
@@ -120,7 +120,7 @@ const Dashboard = () => {
               </div>
               <ProgressBar 
                 progress={Math.round((delayedProjects / totalProjects) * 100)} 
-                status="delayed" 
+                status={"delayed" as ProjectStatus} 
               />
               
               <div className="flex justify-between">
@@ -131,7 +131,7 @@ const Dashboard = () => {
               </div>
               <ProgressBar 
                 progress={Math.round(((totalProjects - (completedProjects + inProgressProjects + delayedProjects)) / totalProjects) * 100)} 
-                status="pending" 
+                status={"pending" as ProjectStatus} 
               />
               
               <div className="mt-4 text-center">

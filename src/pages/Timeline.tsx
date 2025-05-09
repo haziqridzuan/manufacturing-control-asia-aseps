@@ -29,7 +29,23 @@ const Timeline = () => {
     }
   }, []);
 
-  const allProjects = projectsData?.data || projects;
+  // Convert database projects to Project type for our generator function
+  const dbProjects = projectsData?.data || [];
+  const allProjects = dbProjects.map(dbProject => ({
+    id: dbProject.id,
+    name: dbProject.name,
+    status: dbProject.status as ProjectStatus,
+    progress: dbProject.progress,
+    startDate: dbProject.start_date,
+    deadline: dbProject.deadline,
+    supplierId: dbProject.supplier_id,
+    location: dbProject.location,
+    description: dbProject.description,
+    budget: dbProject.budget,
+    milestones: [],
+    projectManager: dbProject.project_manager || undefined,
+    manufacturingManager: dbProject.manufacturing_manager || undefined,
+  }));
   
   const filteredProjects = allProjects.filter(project => {
     if (filter !== "all" && project.status !== filter) {
@@ -171,7 +187,7 @@ const Timeline = () => {
                             <h3 className="font-medium text-actemium-darkBlue">{event.poNumber}</h3>
                             <p className="text-sm text-muted-foreground">{event.partName}</p>
                           </div>
-                          <StatusBadge status={event.status} />
+                          <StatusBadge status={event.status as ProjectStatus} />
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">

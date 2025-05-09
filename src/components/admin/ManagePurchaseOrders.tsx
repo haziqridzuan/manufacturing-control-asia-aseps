@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Table, 
@@ -35,6 +34,7 @@ import { useProjectsData } from "@/hooks/useProjectsData";
 import { useSuppliersData } from "@/hooks/useSuppliersData";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { PurchaseOrderInsert } from "@/types/supabaseTypes";
+import { ProjectStatus } from "@/types";
 import { Edit, Trash2, Plus } from "lucide-react";
 import { formatDate } from "@/utils/formatters";
 
@@ -54,7 +54,7 @@ const ManagePurchaseOrders = () => {
     client_id: "",
     client_name: "",
     quantity: 1,
-    status: "pending",
+    status: "pending" as ProjectStatus,
     date_created: new Date().toISOString().split('T')[0],
     placed_by: "",
     progress: 0,
@@ -98,7 +98,7 @@ const ManagePurchaseOrders = () => {
         client_id: "default-client-id", // placeholder
         client_name: "Actemium",
         quantity: 1,
-        status: "pending",
+        status: "pending" as ProjectStatus,
         date_created: new Date().toISOString().split('T')[0],
         placed_by: "",
         progress: 0,
@@ -311,7 +311,7 @@ const ManagePurchaseOrders = () => {
                 <label className="text-sm font-medium">Status</label>
                 <Select 
                   value={formData.status} 
-                  onValueChange={(value) => setFormData({ ...formData, status: value })}
+                  onValueChange={(value: ProjectStatus) => setFormData({ ...formData, status: value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select Status" />
@@ -321,6 +321,8 @@ const ManagePurchaseOrders = () => {
                     <SelectItem value="in-progress">In Progress</SelectItem>
                     <SelectItem value="delayed">Delayed</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="canceled">Canceled</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

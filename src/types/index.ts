@@ -21,7 +21,7 @@ export type SupplierComment = {
   author?: string;
 };
 
-export type ProjectStatus = 'pending' | 'in-progress' | 'delayed' | 'completed';
+export type ProjectStatus = 'pending' | 'in-progress' | 'delayed' | 'completed' | 'active' | 'canceled';
 
 export type Project = {
   id: string;
@@ -56,7 +56,7 @@ export type FilterOptions = {
   };
 };
 
-export type POStatus = 'active' | 'completed' | 'canceled';
+export type POStatus = 'active' | 'completed' | 'canceled' | 'pending' | 'in-progress' | 'delayed';
 
 export type PurchaseOrder = {
   id: string;

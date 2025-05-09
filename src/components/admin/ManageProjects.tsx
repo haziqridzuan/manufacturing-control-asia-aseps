@@ -34,6 +34,7 @@ import { useProjectsData } from "@/hooks/useProjectsData";
 import { useSuppliersData } from "@/hooks/useSuppliersData";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { ProjectInsert } from "@/types/supabaseTypes";
+import { ProjectStatus } from "@/types";
 import { Edit, Trash2, Plus, FileText } from "lucide-react";
 import { formatDate } from "@/utils/formatters";
 
@@ -53,7 +54,7 @@ const ManageProjects = () => {
     start_date: "",
     location: "",
     progress: 0,
-    status: "pending",
+    status: "pending" as ProjectStatus,
     project_manager: "",
     manufacturing_manager: "",
   });
@@ -70,7 +71,7 @@ const ManageProjects = () => {
         start_date: selectedProject.start_date,
         location: selectedProject.location,
         progress: selectedProject.progress,
-        status: selectedProject.status,
+        status: selectedProject.status as ProjectStatus,
         project_manager: selectedProject.project_manager || "",
         manufacturing_manager: selectedProject.manufacturing_manager || "",
       });
@@ -91,7 +92,7 @@ const ManageProjects = () => {
         start_date: "",
         location: "",
         progress: 0,
-        status: "pending",
+        status: "pending" as ProjectStatus,
         project_manager: "",
         manufacturing_manager: "",
       });
@@ -285,7 +286,7 @@ const ManageProjects = () => {
                 <label className="text-sm font-medium">Status</label>
                 <Select 
                   value={formData.status} 
-                  onValueChange={(value) => setFormData({ ...formData, status: value })}
+                  onValueChange={(value: ProjectStatus) => setFormData({ ...formData, status: value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select Status" />
