@@ -1,3 +1,4 @@
+
 import { BarChart, PieChart } from "recharts";
 import { Package, Users, Calendar, ArrowRight, Gauge, Clock, Check, Database, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,10 +11,12 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { usePurchaseOrdersData } from "@/hooks/usePurchaseOrdersData";
 import { ProjectStatus } from "@/types";
+import { useSuppliersData } from "@/hooks/useSuppliersData";
 
 const Dashboard = () => {
   // Get purchase orders data
   const { purchaseOrders: poData, isLoading } = usePurchaseOrdersData();
+  const { suppliers: suppliersData } = useSuppliersData();
   
   // Calculate metrics
   const totalProjects = projects.length;
@@ -159,6 +162,9 @@ const Dashboard = () => {
                   ? getDaysRemaining(po.contractual_deadline) 
                   : null;
                 
+                // Get supplier name
+                const supplier = suppliersData?.data?.find(s => s.id === po.supplier_id);
+                
                 return (
                   <div key={po.id} className="flex items-center justify-between">
                     <div>
@@ -167,6 +173,8 @@ const Dashboard = () => {
                         <span>{po.part_name}</span>
                         <span>•</span>
                         <StatusBadge status={po.status} />
+                        <span>•</span>
+                        <span className="text-xs italic">Supplier: {supplier?.name || "Unknown"}</span>
                       </div>
                     </div>
                     <div className="text-right">
@@ -220,7 +228,7 @@ const Dashboard = () => {
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="py-3 px-4 text-left">Project Name</th>
-                  <th className="py-3 px-4 text-left">Supplier</th>
+                  <th className="py-3 px-4 text-left">Client</th>
                   <th className="py-3 px-4 text-left">Status</th>
                   <th className="py-3 px-4 text-left">Progress</th>
                   <th className="py-3 px-4 text-left">Deadline</th>
@@ -228,7 +236,6 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {projects.slice(0, 5).map(project => {
-                  const supplier = getSupplierById(project.supplierId);
                   return (
                     <tr key={project.id} className="border-b last:border-0 hover:bg-muted/50">
                       <td className="py-3 px-4">
@@ -236,7 +243,7 @@ const Dashboard = () => {
                           {project.name}
                         </Link>
                       </td>
-                      <td className="py-3 px-4">{supplier?.name}</td>
+                      <td className="py-3 px-4">Actemium</td> {/* Changed from supplier to client */}
                       <td className="py-3 px-4">
                         <StatusBadge status={project.status} />
                       </td>

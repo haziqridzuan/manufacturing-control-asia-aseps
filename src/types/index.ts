@@ -37,6 +37,7 @@ export type Project = {
   milestones: Milestone[];
   projectManager?: string;
   manufacturingManager?: string;
+  client?: string;
 };
 
 export type Milestone = {
@@ -74,6 +75,7 @@ export type PurchaseOrder = {
   shipmentDate?: string;
   notes?: string;
   progress?: number;
+  additionalDeadlines?: string[]; // New field for multiple deadlines
 };
 
 export type ExternalLinkType = 'weekly-report' | 'manufacturing-control' | 'shipment';

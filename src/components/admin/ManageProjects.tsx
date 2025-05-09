@@ -39,7 +39,7 @@ import { Edit, Trash2, Plus, FileText } from "lucide-react";
 import { formatDate } from "@/utils/formatters";
 
 const ManageProjects = () => {
-  const { projects, createProject, updateProject, deleteProject, isLoading } = useProjectsData();
+  const { projects, createProject, updateProject, deleteProject, isLoading, refetch } = useProjectsData();
   const { suppliers } = useSuppliersData();
 
   const [openForm, setOpenForm] = useState(false);
@@ -100,22 +100,26 @@ const ManageProjects = () => {
     setOpenForm(true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedProject) {
-      updateProject({
+      await updateProject({
         id: selectedProject.id,
         data: formData,
       });
     } else {
-      createProject(formData);
+      await createProject(formData);
     }
     setOpenForm(false);
+    // Ensure data is refreshed across the app
+    refetch();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (selectedProject) {
-      deleteProject(selectedProject.id);
+      await deleteProject(selectedProject.id);
       setDeleteDialogOpen(false);
+      // Ensure data is refreshed across the app
+      refetch();
     }
   };
 
@@ -138,7 +142,7 @@ const ManageProjects = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Supplier</TableHead>
+              <TableHead>Client</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Progress</TableHead>
               <TableHead>Deadline</TableHead>
@@ -148,12 +152,11 @@ const ManageProjects = () => {
           <TableBody>
             {projects?.data && projects.data.length > 0 ? (
               projects.data.map((project) => {
-                const supplier = suppliers?.data?.find(s => s.id === project.supplier_id);
-                
+                // Changed from supplier to client
                 return (
                   <TableRow key={project.id}>
                     <TableCell className="font-medium">{project.name}</TableCell>
-                    <TableCell>{supplier?.name || "Unknown"}</TableCell>
+                    <TableCell>Actemium</TableCell>
                     <TableCell><StatusBadge status={project.status} /></TableCell>
                     <TableCell>{project.progress}%</TableCell>
                     <TableCell>{formatDate(project.deadline)}</TableCell>

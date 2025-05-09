@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { PurchaseOrderInsert, PurchaseOrderRow } from "@/types/supabaseTypes";
+import { useQueryClient } from "@tanstack/react-query";
 
 export async function getPurchaseOrders() {
   const { data, error } = await supabase
@@ -56,6 +57,10 @@ export async function createPurchaseOrder(po: PurchaseOrderInsert) {
     console.error('Error creating purchase order:', error);
     throw error;
   }
+
+  // Invalidate queries to refresh data
+  const queryClient = useQueryClient();
+  queryClient?.invalidateQueries({queryKey: ['purchaseOrders']});
   
   return data as PurchaseOrderRow;
 }
@@ -72,6 +77,10 @@ export async function updatePurchaseOrder(id: string, updates: Partial<PurchaseO
     console.error('Error updating purchase order:', error);
     throw error;
   }
+
+  // Invalidate queries to refresh data
+  const queryClient = useQueryClient();
+  queryClient?.invalidateQueries({queryKey: ['purchaseOrders']});
   
   return data as PurchaseOrderRow;
 }
@@ -86,6 +95,10 @@ export async function deletePurchaseOrder(id: string) {
     console.error('Error deleting purchase order:', error);
     throw error;
   }
+
+  // Invalidate queries to refresh data
+  const queryClient = useQueryClient();
+  queryClient?.invalidateQueries({queryKey: ['purchaseOrders']});
   
   return true;
 }

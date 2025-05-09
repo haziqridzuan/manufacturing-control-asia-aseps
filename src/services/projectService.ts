@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { ProjectInsert, ProjectRow } from "@/types/supabaseTypes";
+import { useQueryClient } from "@tanstack/react-query";
 
 export async function getProjects() {
   const { data, error } = await supabase
@@ -56,6 +57,10 @@ export async function createProject(project: ProjectInsert) {
     console.error('Error creating project:', error);
     throw error;
   }
+
+  // Invalidate queries to refresh data
+  const queryClient = useQueryClient();
+  queryClient?.invalidateQueries({queryKey: ['projects']});
   
   return data as ProjectRow;
 }
@@ -72,6 +77,10 @@ export async function updateProject(id: string, updates: Partial<ProjectInsert>)
     console.error('Error updating project:', error);
     throw error;
   }
+
+  // Invalidate queries to refresh data
+  const queryClient = useQueryClient();
+  queryClient?.invalidateQueries({queryKey: ['projects']});
   
   return data as ProjectRow;
 }
@@ -86,6 +95,10 @@ export async function deleteProject(id: string) {
     console.error('Error deleting project:', error);
     throw error;
   }
+
+  // Invalidate queries to refresh data
+  const queryClient = useQueryClient();
+  queryClient?.invalidateQueries({queryKey: ['projects']});
   
   return true;
 }
