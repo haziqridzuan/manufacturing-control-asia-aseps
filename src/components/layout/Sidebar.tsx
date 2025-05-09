@@ -1,7 +1,8 @@
+
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { AreaChart, Home, MapPin, CalendarDays, Users, Settings, Package, Link2 } from 'lucide-react';
+import { AreaChart, Home, CalendarDays, Users, Settings, Package, Link2 } from 'lucide-react';
 
 const Sidebar = () => {
   const isMobile = useIsMobile();
@@ -28,11 +29,6 @@ const Sidebar = () => {
       href: '/timeline',
     },
     {
-      title: 'Global Map',
-      icon: MapPin,
-      href: '/map',
-    },
-    {
       title: 'Analytics',
       icon: AreaChart,
       href: '/analytics',
@@ -54,22 +50,25 @@ const Sidebar = () => {
       className={cn(
         'fixed left-0 top-0 h-full z-40 border-r transition-all duration-300',
         isMobile ? 'w-16' : 'w-64',
+        'bg-white dark:bg-gray-800 dark:border-gray-700',
       )}
     >
-      <div className="flex flex-col h-full bg-white">
+      <div className="flex flex-col h-full bg-white dark:bg-gray-800">
         {/* Logo */}
         <div className={cn(
           'py-4 border-b flex justify-center items-center',
           isMobile ? 'px-2' : 'px-6',
+          'dark:border-gray-700',
         )}>
           <span className={cn(
             'text-xl font-bold',
             isMobile && 'hidden',
+            'dark:text-white',
           )}>
             ASEPS Asia
           </span>
           {isMobile && (
-            <span className="text-xl font-bold">A</span>
+            <span className="text-xl font-bold dark:text-white">A</span>
           )}
         </div>
         
@@ -81,7 +80,7 @@ const Sidebar = () => {
               to={link.href}
               className={({ isActive }) => cn(
                 'flex items-center rounded-md py-2 transition-colors hover:bg-muted',
-                isActive ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-primary',
+                isActive ? 'bg-muted text-primary dark:bg-gray-700 dark:text-white' : 'text-muted-foreground hover:text-primary dark:text-gray-300 dark:hover:text-white',
                 isMobile ? 'justify-center px-2' : 'px-3',
               )}
             >
