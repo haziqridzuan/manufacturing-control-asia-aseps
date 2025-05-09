@@ -4,28 +4,20 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { suppliers, getProjectsBySupplierId } from "@/data/mockData";
 import { cn } from "@/lib/utils";
-import { useSuppliersData } from "@/hooks/useSuppliersData";
-import { useProjectsData } from "@/hooks/useProjectsData";
-import { Star } from "lucide-react";
 
 const Suppliers = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { suppliers, isLoading } = useSuppliersData();
-  const { projects } = useProjectsData();
-  
-  if (isLoading || !suppliers.data) {
-    return <div className="flex justify-center py-8">Loading suppliers...</div>;
-  }
   
   // Apply search
-  const filteredSuppliers = suppliers.data.filter((supplier) => {
+  const filteredSuppliers = suppliers.filter((supplier) => {
     // Search term filter
     if (
       searchTerm &&
       !supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
       !supplier.country.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      !supplier.contact_person.toLowerCase().includes(searchTerm.toLowerCase())
+      !supplier.contactPerson.toLowerCase().includes(searchTerm.toLowerCase())
     ) {
       return false;
     }
@@ -69,63 +61,68 @@ const Suppliers = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredSuppliers.length > 0 ? (
-                  filteredSuppliers.map((supplier) => {
-                    // Get projects for this supplier from the projects query
-                    const supplierProjects = projects.data?.filter(p => p.supplier_id === supplier.id) || [];
-                    const activeProjects = supplierProjects.filter(p => p.status !== "completed").length;
-                    
-                    return (
-                      <tr key={supplier.id} className="border-b last:border-0 hover:bg-muted/50">
-                        <td className="py-3 px-4">
-                          <Link to={`/supplier/${supplier.id}`} className="font-medium hover:underline">
-                            {supplier.name}
-                          </Link>
-                        </td>
-                        <td className="py-3 px-4">{supplier.country}</td>
-                        <td className="py-3 px-4">{supplier.contact_person}</td>
-                        <td className="py-3 px-4">
-                          <div>{supplier.email}</div>
-                          <div className="text-xs text-muted-foreground">{supplier.phone}</div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                size={14}
-                                className={cn(
-                                  i < supplier.rating 
-                                    ? "text-yellow-500 fill-yellow-500" 
-                                    : "text-gray-300 fill-gray-300"
-                                )}
+                {filteredSuppliers.map((supplier) => {
+                  const supplierProjects = getProjectsBySupplierId(supplier.id);
+                  const activeProjects = supplierProjects.filter(p => p.status !== "completed").length;
+                  
+                  return (
+                    <tr key={supplier.id} className="border-b last:border-0 hover:bg-muted/50">
+                      <td className="py-3 px-4">
+                        <Link to={`/supplier/${supplier.id}`} className="font-medium hover:underline">
+                          {supplier.name}
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4">{supplier.country}</td>
+                      <td className="py-3 px-4">{supplier.contactPerson}</td>
+                      <td className="py-3 px-4">
+                        <div>{supplier.email}</div>
+                        <div className="text-xs text-muted-foreground">{supplier.phone}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <svg
+                              key={i}
+                              className={cn(
+                                "h-4 w-4",
+                                i < Math.floor(supplier.rating) ? "text-yellow-400" : "text-gray-300"
+                              )}
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                               />
-                            ))}
-                            <span className="ml-1 text-sm">{supplier.rating}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className={cn(
-                            "inline-block px-2 py-1 text-xs font-medium rounded-full",
-                            supplier.on_time_delivery_rate >= 90 
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" 
-                              : supplier.on_time_delivery_rate >= 75 
-                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                          )}>
-                            {supplier.on_time_delivery_rate}%
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <div className="font-medium">{activeProjects}</div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
+                            </svg>
+                          ))}
+                          <span className="ml-1 text-sm">{supplier.rating}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className={cn(
+                          "text-sm font-medium",
+                          supplier.onTimeDeliveryRate >= 90 ? "text-status-completed" :
+                          supplier.onTimeDeliveryRate >= 75 ? "text-status-in-progress" :
+                          "text-status-delayed"
+                        )}>
+                          {supplier.onTimeDeliveryRate}%
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link to={`/projects?supplier=${supplier.id}`}>
+                            {activeProjects} Projects
+                          </Link>
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
+                
+                {filteredSuppliers.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="text-center py-4">
-                      No suppliers found.
+                    <td colSpan={7} className="py-6 text-center text-muted-foreground">
+                      No suppliers found matching the current search.
                     </td>
                   </tr>
                 )}

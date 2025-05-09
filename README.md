@@ -1,71 +1,73 @@
+# Welcome to your Lovable project
 
-# Project Fabrication Management System
+## Project info
 
-A comprehensive system for managing project fabrication, suppliers, purchase orders, and project timelines.
+**URL**: https://lovable.dev/projects/1cf206ea-fa17-460f-b9e2-872b9b23b7c3
 
-## Getting Started
+## How can I edit this code?
 
-### Prerequisites
+There are several ways of editing your application.
 
-- Node.js 16.x or higher
-- npm or yarn
+**Use Lovable**
 
-### Installation
+Simply visit the [Lovable Project](https://lovable.dev/projects/1cf206ea-fa17-460f-b9e2-872b9b23b7c3) and start prompting.
 
-1. Clone this repository
-2. Install dependencies:
-   ```
-   npm install
-   # or
-   yarn install
-   ```
-3. Start the development server:
-   ```
-   npm run dev
-   # or
-   yarn dev
-   ```
+Changes made via Lovable will be committed automatically to this repo.
 
-## Features
+**Use your preferred IDE**
 
-- Dashboard with key metrics and project status
-- Project management with timelines and milestones
-- Supplier directory and performance tracking
-- Purchase order management
-- External link repository
-- Interactive timeline view
-- Analytics and reporting
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-## Getting Started with the Application
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-1. Navigate to the Admin page
-2. Click "Generate Sample Data" to populate the database with test data
-3. Explore the different sections of the application:
-   - Dashboard - Overview of key metrics
-   - Projects - All project listings and details
-   - Suppliers - Supplier directory and information
-   - Timeline - Visualize project schedules
-   - External Links - Access to external documents and resources
-   - Analytics - Data visualization and reports
+Follow these steps:
 
-## Data Management
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
 
-The Admin page provides tools for managing your data:
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
 
-- Generate Sample Data - Create a set of demo data for testing
-- Export Data - Download all data as a JSON file
-- Import Data - Upload previously exported data
-- Refresh Cache - Clear the data cache and reload from the database
+# Step 3: Install the necessary dependencies.
+npm i
 
-## Technology Stack
+# Step 4: Start the development server with auto-reloading and an instant preview.
+npm run dev
+```
 
-- React with TypeScript
-- Tailwind CSS for styling
-- Recharts for data visualization
-- React Router for navigation
-- React Query for data fetching
-- Supabase for backend and database
+**Edit a file directly in GitHub**
 
-## License
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+**Use GitHub Codespaces**
+
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
+
+## What technologies are used for this project?
+
+This project is built with:
+
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
+
+## How can I deploy this project?
+
+Simply open [Lovable](https://lovable.dev/projects/1cf206ea-fa17-460f-b9e2-872b9b23b7c3) and click on Share -> Publish.
+
+## Can I connect a custom domain to my Lovable project?
+
+Yes, you can!
+
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)

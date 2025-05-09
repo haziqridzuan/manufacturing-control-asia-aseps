@@ -21,7 +21,7 @@ export type SupplierComment = {
   author?: string;
 };
 
-export type ProjectStatus = 'pending' | 'in-progress' | 'delayed' | 'completed' | 'active' | 'canceled';
+export type ProjectStatus = 'pending' | 'in-progress' | 'delayed' | 'completed';
 
 export type Project = {
   id: string;
@@ -37,7 +37,6 @@ export type Project = {
   milestones: Milestone[];
   projectManager?: string;
   manufacturingManager?: string;
-  client?: string;
 };
 
 export type Milestone = {
@@ -57,7 +56,7 @@ export type FilterOptions = {
   };
 };
 
-export type POStatus = 'active' | 'completed' | 'canceled' | 'pending' | 'in-progress' | 'delayed';
+export type POStatus = 'active' | 'completed' | 'canceled';
 
 export type PurchaseOrder = {
   id: string;
@@ -75,7 +74,6 @@ export type PurchaseOrder = {
   shipmentDate?: string;
   notes?: string;
   progress?: number;
-  additionalDeadlines?: string[]; // New field for multiple deadlines
 };
 
 export type ExternalLinkType = 'weekly-report' | 'manufacturing-control' | 'shipment';

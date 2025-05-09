@@ -1,24 +1,15 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { projects, getSupplierById, purchaseOrders } from "@/data/mockData";
-import { Project, ProjectStatus, PurchaseOrder } from "@/types";
+import { projects, getSupplierById } from "@/data/mockData";
+import { Project, ProjectStatus } from "@/types";
 import { cn } from "@/lib/utils";
-import { useProjectsData } from "@/hooks/useProjectsData";
-import { useProjectPurchaseOrdersData } from "@/hooks/usePurchaseOrdersData";
-import { formatDate } from "@/utils/formatters";
-import { ShoppingCart } from "lucide-react";
-import StatusBadge from "@/components/ui/StatusBadge";
 
 const Timeline = () => {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [filter, setFilter] = useState<ProjectStatus | "all">("all");
-  
-  // Fetch project data
-  const { projects: projectsData } = useProjectsData();
-  const { data: projectPOs } = useProjectPurchaseOrdersData(selectedProject || undefined);
   
   // Get project ID from URL if present
   React.useEffect(() => {
@@ -29,25 +20,7 @@ const Timeline = () => {
     }
   }, []);
 
-  // Convert database projects to Project type for our generator function
-  const dbProjects = projectsData?.data || [];
-  const allProjects = dbProjects.map(dbProject => ({
-    id: dbProject.id,
-    name: dbProject.name,
-    status: dbProject.status as ProjectStatus,
-    progress: dbProject.progress,
-    startDate: dbProject.start_date,
-    deadline: dbProject.deadline,
-    supplierId: dbProject.supplier_id,
-    location: dbProject.location,
-    description: dbProject.description,
-    budget: dbProject.budget,
-    milestones: [],
-    projectManager: dbProject.project_manager || undefined,
-    manufacturingManager: dbProject.manufacturing_manager || undefined,
-  }));
-  
-  const filteredProjects = allProjects.filter(project => {
+  const filteredProjects = projects.filter(project => {
     if (filter !== "all" && project.status !== filter) {
       return false;
     }
@@ -55,17 +28,21 @@ const Timeline = () => {
   });
 
   const projectEvents = selectedProject 
-    ? generateProjectTimeline(selectedProject, allProjects)
-    : [];
-    
-  const purchaseOrderEvents = selectedProject && projectPOs
-    ? generatePOTimeline(projectPOs, selectedProject)
+    ? generateProjectTimeline(selectedProject)
     : [];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-actemium-darkBlue">Project Timeline</h1>
+        <div className="w-40 h-12 relative">
+          {/* Actemium logo */}
+          <img 
+            src="https://www.actemium-mixing-process.com/typo3conf/ext/actemium/Resources/Public/img/logo-actemium.svg" 
+            alt="Actemium Logo" 
+            className="h-full w-full object-contain" 
+          />
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -85,7 +62,7 @@ const Timeline = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">All Projects</SelectItem>
-                  {allProjects.map((project) => (
+                  {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>
                   ))}
                 </SelectContent>
@@ -124,12 +101,12 @@ const Timeline = () => {
           </CardContent>
         </Card>
         
-        <div className="md:col-span-2 space-y-6">
+        <div className="md:col-span-2">
           <Card className="border-actemium-blue/20">
             <CardHeader className="border-b border-actemium-blue/10">
               <CardTitle className="text-lg text-actemium-blue">
                 {selectedProject 
-                  ? `Timeline for ${allProjects.find(p => p.id === selectedProject)?.name}` 
+                  ? `Timeline for ${projects.find(p => p.id === selectedProject)?.name}` 
                   : "Project Timeline"}
               </CardTitle>
             </CardHeader>
@@ -168,81 +145,6 @@ const Timeline = () => {
               </div>
             </CardContent>
           </Card>
-          
-          {selectedProject && (
-            <Card className="border-actemium-blue/20">
-              <CardHeader className="border-b border-actemium-blue/10">
-                <CardTitle className="text-lg text-actemium-blue flex items-center">
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Purchase Order Timeline
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                {projectPOs && projectPOs.length > 0 ? (
-                  <div className="space-y-6">
-                    {purchaseOrderEvents.map((event, index) => (
-                      <div key={index} className="border-b pb-4 last:border-0 last:pb-0">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="font-medium text-actemium-darkBlue">{event.poNumber}</h3>
-                            <p className="text-sm text-muted-foreground">{event.partName}</p>
-                          </div>
-                          <StatusBadge status={event.status as ProjectStatus} />
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                          <div>
-                            <p className="text-sm font-medium">Order Details:</p>
-                            <ul className="text-sm mt-1 space-y-1">
-                              <li><span className="text-muted-foreground">Quantity:</span> {event.quantity}</li>
-                              <li><span className="text-muted-foreground">Created:</span> {formatDate(event.dateCreated)}</li>
-                              <li><span className="text-muted-foreground">Placed by:</span> {event.placedBy}</li>
-                              <li><span className="text-muted-foreground">Client:</span> {event.clientName}</li>
-                            </ul>
-                          </div>
-                          
-                          <div>
-                            <p className="text-sm font-medium">Timeline:</p>
-                            <ul className="text-sm mt-1 space-y-1">
-                              <li>
-                                <span className="text-muted-foreground">Order Date:</span> {formatDate(event.dateCreated)}
-                              </li>
-                              {event.contractualDeadline && (
-                                <li>
-                                  <span className="text-muted-foreground">Contractual Deadline:</span> {formatDate(event.contractualDeadline)}
-                                </li>
-                              )}
-                              {event.shipmentDate && (
-                                <li>
-                                  <span className="text-muted-foreground">Shipment Date:</span> {formatDate(event.shipmentDate)}
-                                </li>
-                              )}
-                              {event.progress !== null && (
-                                <li>
-                                  <span className="text-muted-foreground">Progress:</span> {event.progress}%
-                                </li>
-                              )}
-                            </ul>
-                          </div>
-                        </div>
-                        
-                        {event.notes && (
-                          <div className="mt-3">
-                            <p className="text-sm font-medium">Notes:</p>
-                            <p className="text-sm mt-1">{event.notes}</p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-8 text-center text-muted-foreground">
-                    No purchase orders found for this project.
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </div>
@@ -256,22 +158,8 @@ interface TimelineEvent {
   completed: boolean;
 }
 
-interface POTimelineEvent {
-  poNumber: string;
-  partName: string;
-  quantity: number;
-  status: string;
-  dateCreated: string;
-  contractualDeadline: string | null;
-  shipmentDate: string | null;
-  placedBy: string;
-  clientName: string;
-  progress: number | null;
-  notes: string | null;
-}
-
 // Generate mock timeline events for a project
-const generateProjectTimeline = (projectId: string, projects: Project[]): TimelineEvent[] => {
+const generateProjectTimeline = (projectId: string): TimelineEvent[] => {
   const project = projects.find(p => p.id === projectId);
   if (!project) return [];
   
@@ -316,23 +204,6 @@ const generateProjectTimeline = (projectId: string, projects: Project[]): Timeli
   ];
   
   return events;
-};
-
-// Generate timeline events for purchase orders
-const generatePOTimeline = (purchaseOrders: any[], projectId: string): POTimelineEvent[] => {
-  return purchaseOrders.map(po => ({
-    poNumber: po.po_number,
-    partName: po.part_name,
-    quantity: po.quantity,
-    status: po.status,
-    dateCreated: po.date_created,
-    contractualDeadline: po.contractual_deadline,
-    shipmentDate: po.shipment_date,
-    placedBy: po.placed_by,
-    clientName: po.client_name,
-    progress: po.progress,
-    notes: po.notes
-  }));
 };
 
 export default Timeline;

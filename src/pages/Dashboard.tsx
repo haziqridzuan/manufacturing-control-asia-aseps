@@ -9,15 +9,8 @@ import { Button } from "@/components/ui/button";
 import { projects, suppliers, getSupplierById, getDaysRemaining, formatDate, purchaseOrders, getActivePOs, getCompletedPOs } from "@/data/mockData";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { usePurchaseOrdersData } from "@/hooks/usePurchaseOrdersData";
-import { ProjectStatus } from "@/types";
-import { useSuppliersData } from "@/hooks/useSuppliersData";
 
 const Dashboard = () => {
-  // Get purchase orders data
-  const { purchaseOrders: poData, isLoading } = usePurchaseOrdersData();
-  const { suppliers: suppliersData } = useSuppliersData();
-  
   // Calculate metrics
   const totalProjects = projects.length;
   const completedProjects = projects.filter(p => p.status === "completed").length;
@@ -30,17 +23,11 @@ const Dashboard = () => {
   const completedPOs = getCompletedPOs().length;
   const totalPOs = purchaseOrders.length;
   
-  // Get upcoming PO deadlines (sorted by nearest contractual deadline)
-  const upcomingPODeadlines = poData?.data 
-    ? [...poData.data]
-        .filter(po => po.status !== "completed" && po.contractual_deadline)
-        .sort((a, b) => {
-          if (!a.contractual_deadline) return 1;
-          if (!b.contractual_deadline) return -1;
-          return new Date(a.contractual_deadline).getTime() - new Date(b.contractual_deadline).getTime();
-        })
-        .slice(0, 5)
-    : [];
+  // Get upcoming deadlines (projects sorted by nearest deadline)
+  const upcomingDeadlines = [...projects]
+    .filter(p => p.status !== "completed")
+    .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+    .slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -105,7 +92,7 @@ const Dashboard = () => {
               </div>
               <ProgressBar 
                 progress={Math.round((completedProjects / totalProjects) * 100)} 
-                status={"completed" as ProjectStatus} 
+                status="completed" 
               />
               
               <div className="flex justify-between">
@@ -114,7 +101,7 @@ const Dashboard = () => {
               </div>
               <ProgressBar 
                 progress={Math.round((inProgressProjects / totalProjects) * 100)} 
-                status={"in-progress" as ProjectStatus} 
+                status="in-progress" 
               />
               
               <div className="flex justify-between">
@@ -123,7 +110,7 @@ const Dashboard = () => {
               </div>
               <ProgressBar 
                 progress={Math.round((delayedProjects / totalProjects) * 100)} 
-                status={"delayed" as ProjectStatus} 
+                status="delayed" 
               />
               
               <div className="flex justify-between">
@@ -134,7 +121,7 @@ const Dashboard = () => {
               </div>
               <ProgressBar 
                 progress={Math.round(((totalProjects - (completedProjects + inProgressProjects + delayedProjects)) / totalProjects) * 100)} 
-                status={"pending" as ProjectStatus} 
+                status="pending" 
               />
               
               <div className="mt-4 text-center">
@@ -148,50 +135,40 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        {/* Upcoming Purchase Order Deadlines */}
+        {/* Upcoming Deadlines */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Upcoming PO Deadlines</CardTitle>
+            <CardTitle className="text-lg">Upcoming Deadlines</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {isLoading && <div className="text-center py-4">Loading purchase orders...</div>}
-              
-              {!isLoading && upcomingPODeadlines.length > 0 && upcomingPODeadlines.map(po => {
-                const daysRemaining = po.contractual_deadline 
-                  ? getDaysRemaining(po.contractual_deadline) 
-                  : null;
-                
-                // Get supplier name
-                const supplier = suppliersData?.data?.find(s => s.id === po.supplier_id);
+              {upcomingDeadlines.map(project => {
+                const supplier = getSupplierById(project.supplierId);
+                const daysRemaining = getDaysRemaining(project.deadline);
                 
                 return (
-                  <div key={po.id} className="flex items-center justify-between">
+                  <div key={project.id} className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-medium">{po.po_number}</h3>
+                      <h3 className="font-medium">{project.name}</h3>
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <span>{po.part_name}</span>
+                        <span>{supplier?.name}</span>
                         <span>•</span>
-                        <StatusBadge status={po.status} />
-                        <span>•</span>
-                        <span className="text-xs italic">Supplier: {supplier?.name || "Unknown"}</span>
+                        <StatusBadge status={project.status} />
                       </div>
                     </div>
                     <div className="text-right">
                       <div className={cn(
                         "font-medium",
-                        !daysRemaining ? "" :
                         daysRemaining < 0 ? "text-status-delayed" : 
                         daysRemaining < 7 ? "text-status-in-progress" : 
                         "text-status-pending"
                       )}>
-                        {po.contractual_deadline ? formatDate(po.contractual_deadline) : "No deadline"}
+                        {formatDate(project.deadline)}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {!daysRemaining ? "No deadline" :
-                          daysRemaining < 0 
-                            ? `${Math.abs(daysRemaining)} days overdue` 
-                            : `${daysRemaining} days remaining`
+                        {daysRemaining < 0 
+                          ? `${Math.abs(daysRemaining)} days overdue` 
+                          : `${daysRemaining} days remaining`
                         }
                       </div>
                     </div>
@@ -199,9 +176,9 @@ const Dashboard = () => {
                 );
               })}
               
-              {!isLoading && upcomingPODeadlines.length === 0 && (
+              {upcomingDeadlines.length === 0 && (
                 <div className="text-center py-4 text-muted-foreground">
-                  No upcoming purchase order deadlines
+                  No upcoming deadlines
                 </div>
               )}
               
@@ -228,7 +205,7 @@ const Dashboard = () => {
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="py-3 px-4 text-left">Project Name</th>
-                  <th className="py-3 px-4 text-left">Client</th>
+                  <th className="py-3 px-4 text-left">Supplier</th>
                   <th className="py-3 px-4 text-left">Status</th>
                   <th className="py-3 px-4 text-left">Progress</th>
                   <th className="py-3 px-4 text-left">Deadline</th>
@@ -236,6 +213,7 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {projects.slice(0, 5).map(project => {
+                  const supplier = getSupplierById(project.supplierId);
                   return (
                     <tr key={project.id} className="border-b last:border-0 hover:bg-muted/50">
                       <td className="py-3 px-4">
@@ -243,7 +221,7 @@ const Dashboard = () => {
                           {project.name}
                         </Link>
                       </td>
-                      <td className="py-3 px-4">Actemium</td> {/* Changed from supplier to client */}
+                      <td className="py-3 px-4">{supplier?.name}</td>
                       <td className="py-3 px-4">
                         <StatusBadge status={project.status} />
                       </td>
