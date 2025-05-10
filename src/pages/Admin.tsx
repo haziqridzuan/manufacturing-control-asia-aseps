@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -132,7 +131,9 @@ const Admin = () => {
       email: '',
       phone: '',
       rating: 3.0,
-      onTimeDeliveryRate: 0
+      onTimeDeliveryRate: 0,
+      comments: [], // Add the missing comments array
+      location: ''  // Add the missing location property
     };
     
     setEditSupplier(newSupplier);
@@ -226,6 +227,7 @@ const Admin = () => {
       clientId: clients[0].id,
       clientName: clients[0].name,
       dateCreated: new Date().toISOString().split('T')[0],
+      contractualDeadline: new Date().toISOString().split('T')[0], // Add the required contractualDeadline field
       placedBy: '',
       status: 'active',
       progress: 0
