@@ -39,11 +39,24 @@ const Layout = ({ children }: LayoutProps) => {
   
   return (
     <div className={cn(
-      "min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300",
+      "min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300 relative overflow-hidden",
       darkMode ? "dark" : ""
     )}>
+      {/* Background image with animation */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-5 dark:opacity-10 animate-float">
+        <img 
+          src="/lovable-uploads/44861a8d-b1c8-452d-b8f6-fbc0e9b4dc3d.png" 
+          alt="" 
+          className="absolute w-full h-full object-contain" 
+          style={{ 
+            transform: "scale(1.5)",
+            filter: "blur(5px)"
+          }}
+        />
+      </div>
+      
       <Sidebar />
-      <div className="pl-16 lg:pl-64 pt-4">
+      <div className="pl-16 lg:pl-64 pt-4 relative z-10">
         <main className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold dark:text-white">ASEPS Asia Manufacturing Tracker</h1>
@@ -59,7 +72,7 @@ const Layout = ({ children }: LayoutProps) => {
               </Button>
               <img 
                 src="https://www.actemium-mixing-process.com/media/websites/actemium-mixing/img/actemium-logo-baseline.png" 
-                alt="ASEPS Asia Logo" 
+                alt="Actemium Logo" 
                 className="h-8" 
               />
             </div>

@@ -1,4 +1,3 @@
-
 import { BarChart, PieChart } from "recharts";
 import { Package, Users, Calendar, ArrowRight, Gauge, Clock, Check, Database, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -135,10 +134,10 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        {/* Upcoming Deadlines */}
+        {/* Upcoming PO Deadline */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Upcoming Deadlines</CardTitle>
+            <CardTitle className="text-lg">Upcoming PO Deadline</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
