@@ -1,3 +1,4 @@
+
 import { BarChart, PieChart } from "recharts";
 import { Package, Users, Calendar, ArrowRight, Gauge, Clock, Check, Database, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -204,7 +205,7 @@ const Dashboard = () => {
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="py-3 px-4 text-left">Project Name</th>
-                  <th className="py-3 px-4 text-left">Supplier</th>
+                  <th className="py-3 px-4 text-left">Client Name</th>
                   <th className="py-3 px-4 text-left">Status</th>
                   <th className="py-3 px-4 text-left">Progress</th>
                   <th className="py-3 px-4 text-left">Deadline</th>
@@ -212,7 +213,6 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {projects.slice(0, 5).map(project => {
-                  const supplier = getSupplierById(project.supplierId);
                   return (
                     <tr key={project.id} className="border-b last:border-0 hover:bg-muted/50">
                       <td className="py-3 px-4">
@@ -220,7 +220,7 @@ const Dashboard = () => {
                           {project.name}
                         </Link>
                       </td>
-                      <td className="py-3 px-4">{supplier?.name}</td>
+                      <td className="py-3 px-4">{project.clientName || "N/A"}</td>
                       <td className="py-3 px-4">
                         <StatusBadge status={project.status} />
                       </td>

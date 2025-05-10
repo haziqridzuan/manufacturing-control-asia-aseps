@@ -1,5 +1,20 @@
 
-export type Supplier = {
+export type ProjectStatus = "in-progress" | "completed" | "delayed" | "pending";
+
+export type POStatus = "active" | "completed" | "cancelled";
+
+export type SupplierCommentType = "positive" | "negative" | "neutral";
+
+export interface SupplierComment {
+  id: string;
+  supplierId: string;
+  text: string;
+  type: SupplierCommentType;
+  date: string;
+  author: string;
+}
+
+export interface Supplier {
   id: string;
   name: string;
   country: string;
@@ -8,57 +23,37 @@ export type Supplier = {
   phone: string;
   rating: number;
   onTimeDeliveryRate: number;
-  comments?: SupplierComment[];
-  location?: string;
-};
-
-export type SupplierComment = {
-  id: string;
-  supplierId: string;
-  text: string;
-  type: 'positive' | 'negative' | 'neutral';
-  date: string;
-  author?: string;
-};
-
-export type ProjectStatus = 'pending' | 'in-progress' | 'delayed' | 'completed';
-
-export type Project = {
-  id: string;
-  name: string;
-  status: ProjectStatus;
-  progress: number;
-  startDate: string;
-  deadline: string;
-  supplierId: string;
+  comments: SupplierComment[];
   location: string;
-  description: string;
-  budget: number;
-  milestones: Milestone[];
-  projectManager?: string;
-  manufacturingManager?: string;
-};
+}
 
-export type Milestone = {
+export interface Milestone {
   id: string;
   title: string;
   dueDate: string;
   completed: boolean;
   projectId: string;
-};
+}
 
-export type FilterOptions = {
-  status?: ProjectStatus;
-  supplier?: string;
-  dateRange?: {
-    from: Date | undefined;
-    to: Date | undefined;
-  };
-};
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  status: ProjectStatus;
+  progress: number;
+  startDate: string;
+  deadline: string;
+  budget: number;
+  supplierId: string;
+  location: string;
+  milestones: Milestone[];
+  projectManager?: string;
+  manufacturingManager?: string;
+  clientName?: string;
+  clientId?: string;
+}
 
-export type POStatus = 'active' | 'completed' | 'canceled';
-
-export type PurchaseOrder = {
+export interface PurchaseOrder {
   id: string;
   poNumber: string;
   projectId: string;
@@ -68,44 +63,9 @@ export type PurchaseOrder = {
   clientId: string;
   clientName: string;
   dateCreated: string;
-  contractualDeadline?: string;
+  contractualDeadline: string;
   placedBy: string;
   status: POStatus;
   shipmentDate?: string;
   notes?: string;
-  progress?: number;
-};
-
-export type ExternalLinkType = 'weekly-report' | 'manufacturing-control' | 'shipment';
-
-export type ExternalLink = {
-  id: string;
-  title: string;
-  url: string;
-  type: ExternalLinkType;
-  projectId?: string;
-  poId?: string;
-  description?: string;
-  dateAdded: string;
-};
-
-export type Client = {
-  id: string;
-  name: string;
-  contactPerson: string;
-  email: string;
-  phone: string;
-  address?: string;
-  country?: string;
-  notes?: string;
-};
-
-export type TeamMember = {
-  id: string;
-  name: string;
-  role: string;
-  email: string;
-  phone?: string;
-  department?: string;
-  photo?: string;
-};
+}

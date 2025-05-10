@@ -1,3 +1,4 @@
+
 import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus, SupplierComment } from "@/types";
 
 // Add comments to suppliers
@@ -127,6 +128,8 @@ export const projects: Project[] = [
     location: "New York, USA",
     description: "Fabrication of custom steel components for a new office tower in Manhattan.",
     budget: 1500000,
+    clientName: "NYC Development Corp",
+    clientId: "c1",
     milestones: [
       {
         id: "m1p1",
@@ -176,6 +179,8 @@ export const projects: Project[] = [
     location: "Tokyo, Japan",
     description: "Custom steel and glass structures for a new metro station in Tokyo.",
     budget: 2200000,
+    clientName: "Tokyo Metro Authority",
+    clientId: "c2",
     milestones: [
       {
         id: "m1p2",
@@ -225,6 +230,8 @@ export const projects: Project[] = [
     location: "Berlin, Germany",
     description: "Fabrication of structural elements for a new commercial complex.",
     budget: 1800000,
+    clientName: "Berlin Commercial Developers",
+    clientId: "c3",
     milestones: [
       {
         id: "m1p3",
@@ -274,6 +281,8 @@ export const projects: Project[] = [
     location: "Sao Paulo, Brazil",
     description: "Custom steel components for a new bridge project.",
     budget: 2500000,
+    clientName: "Sao Paulo Infrastructure Authority",
+    clientId: "c4",
     milestones: [
       {
         id: "m1p4",
@@ -323,6 +332,8 @@ export const projects: Project[] = [
     location: "Cape Town, South Africa",
     description: "Fabrication of architectural elements for a new airport terminal.",
     budget: 1900000,
+    clientName: "Cape Town Airport Authority",
+    clientId: "c5",
     milestones: [
       {
         id: "m1p5",
@@ -372,6 +383,8 @@ export const projects: Project[] = [
     location: "Dubai, UAE",
     description: "Manufacturing of custom glass and aluminum facade elements for a new skyscraper.",
     budget: 3200000,
+    clientName: "Dubai Property Development",
+    clientId: "c6",
     milestones: [
       {
         id: "m1p6",
