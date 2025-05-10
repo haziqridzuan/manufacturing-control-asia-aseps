@@ -1,19 +1,21 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ExternalLink, ExternalLinkType } from "@/types";
-import { FileArchive, FileText, Link2 } from "lucide-react";
+import { FileArchive, FileText, Link2, Filter } from "lucide-react";
+import { projects, purchaseOrders, suppliers } from "@/data/mockData";
+import { supabase } from "@/integrations/supabase/client";
 
 // Mock data for external links - in a real app, this would come from the API
 const externalLinks: ExternalLink[] = [
   {
     id: "link1",
     title: "Weekly Report - Project Alpha",
-    url: "https://example.com/reports/alpha-week-12",
+    url: "H:\\Realisation\\01-Projets_En_Cours\\P0664204-I63-FORMULA_UK_Blue Bird Line\\03-ACHAT\\05-Suivi_fabrications\\VIETNAM\\HONG CHAU\\PO966029670 [chaudronnerie asie]\\Weekly report",
     type: "weekly-report",
     projectId: "p1",
     dateAdded: "2025-04-28"
@@ -21,7 +23,7 @@ const externalLinks: ExternalLink[] = [
   {
     id: "link2",
     title: "Manufacturing Photos - Chassis Components",
-    url: "https://example.com/manufacturing/photos/chassis",
+    url: "H:\\Realisation\\01-Projets_En_Cours\\P0664204-I63-FORMULA_UK_Blue Bird Line\\03-ACHAT\\05-Suivi_fabrications\\Manufacturing Photos",
     type: "manufacturing-control",
     projectId: "p2",
     poId: "po2",
@@ -30,7 +32,7 @@ const externalLinks: ExternalLink[] = [
   {
     id: "link3",
     title: "Shipment Tracking - Engine Parts",
-    url: "https://example.com/shipment/tracking/engine-parts",
+    url: "H:\\Realisation\\01-Projets_En_Cours\\P0664204-I63-FORMULA_UK_Blue Bird Line\\03-ACHAT\\05-Suivi_fabrications\\Shipment\\engine-parts",
     type: "shipment",
     projectId: "p1",
     poId: "po1",
@@ -41,14 +43,52 @@ const externalLinks: ExternalLink[] = [
 const ExternalLinks = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<ExternalLinkType | "all">("all");
+  const [projectFilter, setProjectFilter] = useState<string>("all");
+  const [poFilter, setPoFilter] = useState<string>("all");
+  const [supplierFilter, setSupplierFilter] = useState<string>("all");
+  const [clientFilter, setClientFilter] = useState<string>("all");
+  const [links, setLinks] = useState<ExternalLink[]>(externalLinks);
   
-  // Filter links based on search term and type
-  const filteredLinks = externalLinks.filter(link => {
+  useEffect(() => {
+    // In a real app, this would fetch data from Supabase
+    const fetchLinks = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('external_links')
+          .select('*');
+          
+        if (error) {
+          console.error('Error fetching external links:', error);
+          return;
+        }
+        
+        if (data && data.length > 0) {
+          setLinks(data as ExternalLink[]);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+    
+    // Uncomment when Supabase is connected
+    // fetchLinks();
+  }, []);
+  
+  // Filter links based on search term and filters
+  const filteredLinks = links.filter(link => {
     const matchesSearch = link.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           link.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "all" || link.type === filterType;
+    const matchesProject = projectFilter === "all" || link.projectId === projectFilter;
+    const matchesPO = poFilter === "all" || link.poId === poFilter;
     
-    return matchesSearch && matchesType;
+    // For supplier and client filters, we'd need to join with PO and project data
+    // This is a simplified version - in real app, this would be done in the database query
+    const po = link.poId ? purchaseOrders.find(p => p.id === link.poId) : null;
+    const matchesSupplier = supplierFilter === "all" || (po && po.supplierId === supplierFilter);
+    const matchesClient = clientFilter === "all" || (po && po.clientId === clientFilter);
+    
+    return matchesSearch && matchesType && matchesProject && matchesPO && matchesSupplier && matchesClient;
   });
   
   const getLinkIcon = (type: ExternalLinkType) => {
@@ -75,7 +115,8 @@ const ExternalLinks = () => {
           <CardTitle className="text-lg">External Links & Documents</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          {/* Enhanced filters for task #12 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <div className="flex-1">
               <Input
                 placeholder="Search external links..."
@@ -84,21 +125,115 @@ const ExternalLinks = () => {
                 className="w-full"
               />
             </div>
+            
             <div>
               <Select
                 value={filterType}
                 onValueChange={(value: ExternalLinkType | "all") => setFilterType(value)}
               >
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger>
                   <SelectValue placeholder="Filter by type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="weekly-report">Weekly Reports</SelectItem>
-                  <SelectItem value="manufacturing-control">Manufacturing Control</SelectItem>
-                  <SelectItem value="shipment">Shipment</SelectItem>
+                  <SelectItem value="manufacturing-control">Manufacturing Photos</SelectItem>
+                  <SelectItem value="shipment">Shipment Tracking</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            
+            <div>
+              <Select
+                value={projectFilter}
+                onValueChange={setProjectFilter}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by Project" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Projects</SelectItem>
+                  {projects.map(project => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Select
+                value={poFilter}
+                onValueChange={setPoFilter}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by PO" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All POs</SelectItem>
+                  {purchaseOrders.map(po => (
+                    <SelectItem key={po.id} value={po.id}>
+                      {po.poNumber}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Select
+                value={supplierFilter}
+                onValueChange={setSupplierFilter}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by Supplier" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Suppliers</SelectItem>
+                  {suppliers.map(supplier => (
+                    <SelectItem key={supplier.id} value={supplier.id}>
+                      {supplier.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Select
+                value={clientFilter}
+                onValueChange={setClientFilter}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by Client" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Clients</SelectItem>
+                  {Array.from(new Set(projects.map(p => p.clientId))).map(clientId => (
+                    <SelectItem key={clientId} value={clientId || ""}>
+                      {projects.find(p => p.clientId === clientId)?.clientName || "Unknown"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="md:col-span-2 lg:col-span-3 flex justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setSearchTerm("");
+                  setFilterType("all");
+                  setProjectFilter("all");
+                  setPoFilter("all");
+                  setSupplierFilter("all");
+                  setClientFilter("all");
+                }}
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                Reset Filters
+              </Button>
             </div>
           </div>
           
@@ -115,6 +250,17 @@ const ExternalLinks = () => {
                       {link.description || `${link.type.replace("-", " ")} document`}
                     </p>
                     <p className="text-xs text-muted-foreground">Added: {link.dateAdded}</p>
+                    {/* Show related project and PO if available */}
+                    {link.projectId && (
+                      <p className="text-xs text-muted-foreground">
+                        Project: {projects.find(p => p.id === link.projectId)?.name || link.projectId}
+                      </p>
+                    )}
+                    {link.poId && (
+                      <p className="text-xs text-muted-foreground">
+                        PO: {purchaseOrders.find(po => po.id === link.poId)?.poNumber || link.poId}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="border-t p-4">

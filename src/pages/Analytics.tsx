@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { projects, suppliers, getProjectsByStatus, purchaseOrders } from "@/data/mockData";
@@ -10,6 +11,8 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 const Analytics = () => {
   // State for date range filter - update type to use DateRange from react-day-picker
@@ -17,6 +20,32 @@ const Analytics = () => {
     from: undefined,
     to: undefined,
   });
+  
+  useEffect(() => {
+    // In a real app, this would fetch data from Supabase
+    const fetchData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*');
+          
+        if (error) {
+          console.error('Error fetching projects:', error);
+          return;
+        }
+        
+        // Process the data
+        console.log('Projects fetched from Supabase:', data);
+        
+        // In a real implementation, you would update state with this data
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+    
+    // Uncomment when Supabase is connected
+    // fetchData();
+  }, []);
   
   // Date filter function
   const filterDataByDate = (data: any[], dateField: string) => {
@@ -89,6 +118,26 @@ const Analytics = () => {
       rating: supplier.rating,
       deliveryRate: supplier.onTimeDeliveryRate
     }));
+
+  // Project Timeline data - Added for task #9
+  const projectTimelineData = filteredProjects.map(project => {
+    const startDate = new Date(project.startDate);
+    const deadline = new Date(project.deadline);
+    const today = new Date();
+    
+    // Calculate days elapsed and total days
+    const totalDays = Math.ceil((deadline.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const elapsedDays = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const remainingDays = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return {
+      name: project.name.split(' ').slice(0, 2).join(' '), // Shortened name
+      elapsed: elapsedDays < 0 ? 0 : elapsedDays,
+      remaining: remainingDays < 0 ? 0 : remainingDays,
+      total: totalDays,
+      progress: project.progress
+    };
+  }).sort((a, b) => b.progress - a.progress).slice(0, 5); // Top 5 projects by progress
 
   return (
     <div className="space-y-6">
@@ -247,10 +296,10 @@ const Analytics = () => {
               </CardContent>
             </Card>
             
-            {/* Budget Analysis */}
+            {/* Budget Spent Analysis - Changed from Budget Analysis for task #14 */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Budget Analysis (in thousands)</CardTitle>
+                <CardTitle className="text-base">Budget Spent Analysis (in thousands)</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-80">
@@ -269,7 +318,7 @@ const Analytics = () => {
                         <XAxis dataKey="name" angle={-45} textAnchor="end" />
                         <YAxis />
                         <ChartTooltip content={<ChartTooltipContent />} />
-                        <Bar dataKey="budget" fill="#8884d8">
+                        <Bar dataKey="budget" name="Budget Spent (thousands)" fill="#8884d8">
                           {budgetData.map((entry, index) => (
                             <Cell 
                               key={`cell-${index}`} 
@@ -282,6 +331,39 @@ const Analytics = () => {
                             />
                           ))}
                         </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Project Timeline Chart - Added for task #9 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Project Timeline</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ChartContainer config={{}}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={projectTimelineData}
+                        layout="vertical"
+                        margin={{
+                          top: 20,
+                          right: 30,
+                          left: 50,
+                          bottom: 5,
+                        }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" />
+                        <YAxis dataKey="name" type="category" />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Legend />
+                        <Bar dataKey="elapsed" stackId="a" name="Days Elapsed" fill="#3498db" />
+                        <Bar dataKey="remaining" stackId="a" name="Days Remaining" fill="#95a5a6" />
                       </BarChart>
                     </ResponsiveContainer>
                   </ChartContainer>
@@ -303,9 +385,10 @@ const Analytics = () => {
               <p className="text-sm text-muted-foreground">Total Projects</p>
               <p className="text-2xl font-bold">{filteredProjects.length}</p>
             </div>
+            {/* Changed label from "Total Budget" to "Total Budget Spent" for task #13 */}
             <div className="p-4 border rounded-lg">
-              <p className="text-sm text-muted-foreground">Total Budget</p>
-              <p className="text-2xl font-bold">${(filteredProjects.reduce((sum, p) => sum + p.budget, 0) / 1000000).toFixed(1)}M</p>
+              <p className="text-sm text-muted-foreground">Total Budget Spent</p>
+              <p className="text-2xl font-bold">${(filteredProjects.reduce((sum, p) => sum + (p.budget * p.progress / 100), 0) / 1000000).toFixed(1)}M</p>
             </div>
             <div className="p-4 border rounded-lg">
               <p className="text-sm text-muted-foreground">Total Purchase Orders</p>
