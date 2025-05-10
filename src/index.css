@@ -3,110 +3,85 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%; /* Darker blue */
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%; /* Light blue secondary */
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%; /* Light blue accent */
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%; /* Dark blue ring */
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 222.2 47.4% 11.2%; /* Dark blue sidebar */
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 210 40% 96.1%; /* Light blue for sidebar primary */
-    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
-    --sidebar-accent: 217.2 32.6% 17.5%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 212.7 26.8% 83.9%;
+@layer utilities {
+  /* Add animation for floating effect */
+  .animate-float {
+    animation: float 20s ease-in-out infinite;
   }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    
-    --sidebar-background: 222.2 84% 4.9%; /* Dark sidebar */
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 210 40% 98%;
-    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
-    --sidebar-accent: 217.2 32.6% 17.5%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 212.7 26.8% 83.9%;
+  
+  @keyframes float {
+    0% {
+      transform: translate(0px, 0px) rotate(0deg);
+    }
+    25% {
+      transform: translate(-15px, 15px) rotate(-1deg);
+    }
+    50% {
+      transform: translate(15px, -15px) rotate(1deg);
+    }
+    75% {
+      transform: translate(-15px, -15px) rotate(0deg);
+    }
+    100% {
+      transform: translate(0px, 0px) rotate(0deg);
+    }
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground transition-colors duration-300;
-  }
-
-  html, body, #root {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
+/* Status color variables */
+:root {
+  --status-pending: rgb(148 163 184);
+  --status-in-progress: rgb(59 130 246);
+  --status-delayed: rgb(239 68 68);
+  --status-completed: rgb(34 197 94);
 }
 
-/* Dark mode specific styles */
-.dark .card {
-  @apply bg-slate-800 border-slate-700;
+/* Define dark mode status colors */
+.dark {
+  --status-pending: rgb(148 163 184);
+  --status-in-progress: rgb(96 165 250);
+  --status-delayed: rgb(248 113 113);
+  --status-completed: rgb(74 222 128);
 }
 
-.dark .badge {
-  @apply bg-slate-700 text-slate-200;
+/* Status badge tailwind colors */
+@layer components {
+  .bg-status-pending {
+    @apply bg-slate-400;
+  }
+  .bg-status-in-progress {
+    @apply bg-blue-500;
+  }
+  .bg-status-delayed {
+    @apply bg-red-500;
+  }
+  .bg-status-completed {
+    @apply bg-green-500;
+  }
+  
+  .text-status-pending {
+    @apply text-slate-600;
+  }
+  .text-status-in-progress {
+    @apply text-blue-600;
+  }
+  .text-status-delayed {
+    @apply text-red-600;
+  }
+  .text-status-completed {
+    @apply text-green-600;
+  }
+  
+  .dark .text-status-pending {
+    @apply text-slate-400;
+  }
+  .dark .text-status-in-progress {
+    @apply text-blue-400;
+  }
+  .dark .text-status-delayed {
+    @apply text-red-400;
+  }
+  .dark .text-status-completed {
+    @apply text-green-400;
+  }
 }
-
