@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -27,13 +26,13 @@ const ProjectDetails = () => {
   // PO stats
   const activePOs = purchaseOrders.filter(po => po.status === 'active').length;
   const completedPOs = purchaseOrders.filter(po => po.status === 'completed').length;
-  const canceledPOs = purchaseOrders.filter(po => po.status === 'canceled').length;
+  const canceledPOs = purchaseOrders.filter(po => po.status === 'cancelled').length; // Changed "canceled" to "cancelled" to match POStatus type
   
   // Chart data
   const poStatusData = [
     { name: 'Active', value: activePOs, color: '#3498db' },
     { name: 'Completed', value: completedPOs, color: '#2ecc71' },
-    { name: 'Canceled', value: canceledPOs, color: '#e74c3c' },
+    { name: 'Cancelled', value: canceledPOs, color: '#e74c3c' },
   ];
   
   // Group POs by part type for visualization

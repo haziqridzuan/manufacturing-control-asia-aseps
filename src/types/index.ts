@@ -68,4 +68,47 @@ export interface PurchaseOrder {
   status: POStatus;
   shipmentDate?: string;
   notes?: string;
+  progress?: number; // Added progress property to fix errors in Admin.tsx
+}
+
+// Adding missing types needed for Admin.tsx
+export interface Client {
+  id: string;
+  name: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  country: string;
+  address?: string;
+  notes?: string;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  email: string;
+  department: string;
+  phone?: string;
+}
+
+export type ExternalLinkType = "weekly-report" | "manufacturing-control" | "shipment";
+
+export interface ExternalLink {
+  id: string;
+  title: string;
+  url: string;
+  type: ExternalLinkType;
+  projectId?: string;
+  poId?: string;
+  dateAdded: string;
+  description?: string;
+}
+
+// Adding FilterOptions for Projects.tsx
+export interface FilterOptions {
+  status?: ProjectStatus;
+  supplier?: string;
+  client?: string;
+  date?: string;
 }
