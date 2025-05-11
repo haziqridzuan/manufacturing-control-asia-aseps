@@ -46,7 +46,7 @@ const Layout = ({ children }: LayoutProps) => {
       <div className="pl-16 lg:pl-64 pt-4">
         <main className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold dark:text-white">Manufacturing Tracker</h1>
+            <h1 className="text-2xl font-bold dark:text-white">ASEPS Asia Manufacturing Tracker</h1>
             <div className="flex items-center gap-4">
               <Button
                 variant="outline"
@@ -59,7 +59,7 @@ const Layout = ({ children }: LayoutProps) => {
               </Button>
               <img 
                 src="https://www.actemium-mixing-process.com/media/websites/actemium-mixing/img/actemium-logo-baseline.png" 
-                alt="Logo" 
+                alt="ASEPS Asia Logo" 
                 className="h-8" 
               />
             </div>
