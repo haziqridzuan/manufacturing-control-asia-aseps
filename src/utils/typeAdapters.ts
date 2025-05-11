@@ -9,7 +9,8 @@ import {
   Client,
   TeamMember,
   ProjectStatus,
-  POStatus
+  POStatus,
+  ExternalLinkType
 } from '@/types';
 import {
   ProjectRow,
@@ -38,6 +39,9 @@ export function adaptSupplier(row: SupplierRow): Supplier {
   };
 }
 
+// Alias for adaptSupplier - used in Admin.tsx
+export const adaptSupabaseSupplierToApp = adaptSupplier;
+
 // Function to adapt Supabase Project row to our app's Project type
 export function adaptProject(row: ProjectRow): Project {
   return {
@@ -56,6 +60,9 @@ export function adaptProject(row: ProjectRow): Project {
     manufacturingManager: row.manufacturing_manager || undefined,
   };
 }
+
+// Alias for adaptProject - used in Admin.tsx
+export const adaptSupabaseProjectToApp = adaptProject;
 
 // Function to adapt Supabase PurchaseOrder row to our app's PurchaseOrder type
 export function adaptPurchaseOrder(row: PurchaseOrderRow): PurchaseOrder {
@@ -78,6 +85,9 @@ export function adaptPurchaseOrder(row: PurchaseOrderRow): PurchaseOrder {
   };
 }
 
+// Alias for adaptPurchaseOrder - used in Admin.tsx
+export const adaptSupabasePOToApp = adaptPurchaseOrder;
+
 // Function to adapt Supabase Milestone row to our app's Milestone type
 export function adaptMilestone(row: MilestoneRow): Milestone {
   return {
@@ -95,7 +105,7 @@ export function adaptExternalLink(row: ExternalLinkRow): ExternalLink {
     id: row.id,
     title: row.title,
     url: row.url,
-    type: row.type as any,
+    type: row.type as ExternalLinkType,
     dateAdded: row.date_added,
     projectId: row.project_id || undefined,
     poId: row.po_id || undefined,

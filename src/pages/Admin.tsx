@@ -7,10 +7,53 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { Supplier, Project, PurchaseOrder, Client, TeamMember, ExternalLink, ExternalLinkType, ProjectStatus, POStatus } from '@/types';
-import { suppliers, projects, clients, teamMembers, purchaseOrders } from '@/data/mockData';
+import { suppliers, projects, purchaseOrders } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { adaptSupabaseSupplierToApp, adaptSupabaseProjectToApp, adaptSupabasePOToApp } from '@/utils/typeAdapters';
+import { 
+  adaptSupplier as adaptSupabaseSupplierToApp,
+  adaptProject as adaptSupabaseProjectToApp,
+  adaptPurchaseOrder as adaptSupabasePOToApp
+} from '@/utils/typeAdapters';
+
+// Sample mock data for clients and team members
+const clients: Client[] = [
+  {
+    id: 'c1',
+    name: 'Acme Corporation',
+    contactPerson: 'John Doe',
+    email: 'john@acme.com',
+    phone: '555-1234',
+    country: 'USA'
+  },
+  {
+    id: 'c2',
+    name: 'Globex Industries',
+    contactPerson: 'Jane Smith',
+    email: 'jane@globex.com',
+    phone: '555-5678',
+    country: 'Canada'
+  }
+];
+
+const teamMembers: TeamMember[] = [
+  {
+    id: 't1',
+    name: 'Sarah Johnson',
+    role: 'Project Manager',
+    email: 'sarah@company.com',
+    phone: '555-9876',
+    department: 'Management'
+  },
+  {
+    id: 't2',
+    name: 'Mike Chen',
+    role: 'Manufacturing Manager',
+    email: 'mike@company.com',
+    phone: '555-5432',
+    department: 'Manufacturing'
+  }
+];
 
 const Admin = () => {
   // Suppliers state
@@ -51,7 +94,7 @@ const Admin = () => {
           console.error('Error fetching suppliers:', suppliersError);
         } else if (suppliersData) {
           // Convert Supabase data to app format
-          const adaptedSuppliers = suppliersData.map(adaptSupabaseSupplierToApp);
+          const adaptedSuppliers = suppliersData.map(row => adaptSupabaseSupplierToApp(row as any));
           setSuppliersList(adaptedSuppliers);
         }
         
@@ -64,7 +107,7 @@ const Admin = () => {
           console.error('Error fetching projects:', projectsError);
         } else if (projectsData) {
           // Convert Supabase data to app format
-          const adaptedProjects = projectsData.map(adaptSupabaseProjectToApp);
+          const adaptedProjects = projectsData.map(row => adaptSupabaseProjectToApp(row as any));
           setProjectsList(adaptedProjects);
         }
         
@@ -77,7 +120,7 @@ const Admin = () => {
           console.error('Error fetching purchase orders:', posError);
         } else if (posData) {
           // Convert Supabase data to app format
-          const adaptedPOs = posData.map(adaptSupabasePOToApp);
+          const adaptedPOs = posData.map(row => adaptSupabasePOToApp(row as any));
           setPosList(adaptedPOs);
         }
         
