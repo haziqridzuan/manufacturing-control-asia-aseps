@@ -1,4 +1,5 @@
-import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus, SupplierComment } from "@/types";
+
+import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus, SupplierComment, Client } from "@/types";
 
 // Add comments to suppliers
 const supplierComments: SupplierComment[] = [
@@ -49,6 +50,68 @@ const supplierComments: SupplierComment[] = [
     type: "neutral",
     date: "2025-03-05",
     author: "David Nkosi"
+  }
+];
+
+// Add clients data
+export const clients: Client[] = [
+  {
+    id: "c1",
+    name: "NYC Development Corp",
+    contactPerson: "Emily Roberts",
+    email: "eroberts@nycdevelopment.com",
+    phone: "+1 212-555-7890",
+    address: "350 5th Avenue, New York, NY 10118",
+    country: "United States",
+    notes: "Key client for Manhattan projects"
+  },
+  {
+    id: "c2",
+    name: "Tokyo Metro Authority",
+    contactPerson: "Kenji Yamamoto",
+    email: "k.yamamoto@tokyometro.jp",
+    phone: "+81 3-9876-5432",
+    address: "1-1 Marunouchi, Chiyoda-ku, Tokyo",
+    country: "Japan",
+    notes: "Multiple ongoing infrastructure projects"
+  },
+  {
+    id: "c3",
+    name: "Berlin Commercial Developers",
+    contactPerson: "Hannah Weber",
+    email: "h.weber@berlincommercial.de",
+    phone: "+49 30 8765-4321",
+    address: "Friedrichstraße 123, 10117 Berlin",
+    country: "Germany",
+    notes: "Focus on eco-friendly construction"
+  },
+  {
+    id: "c4",
+    name: "São Paulo Infrastructure Group",
+    contactPerson: "Luiz Costa",
+    email: "lcosta@spinfra.com.br",
+    phone: "+55 11 9876-5432",
+    address: "Av. Paulista 1000, São Paulo",
+    country: "Brazil"
+  },
+  {
+    id: "c5",
+    name: "Cape Town Airport Authority",
+    contactPerson: "Thabo Ndlovu",
+    email: "t.ndlovu@ctairport.co.za",
+    phone: "+27 21 765-4321",
+    address: "Airport City, Cape Town 7525",
+    country: "South Africa"
+  },
+  {
+    id: "c6",
+    name: "Dubai Property Development",
+    contactPerson: "Ahmed Al-Farsi",
+    email: "ahmed@dubaiproperty.ae",
+    phone: "+971 4 123-4567",
+    address: "Sheikh Zayed Road, Dubai",
+    country: "United Arab Emirates",
+    notes: "High-end luxury developments"
   }
 ];
 
@@ -587,6 +650,11 @@ projects.forEach(project => {
 // Helper function to get supplier name by ID
 export const getSupplierById = (id: string): Supplier | undefined => {
   return suppliers.find(supplier => supplier.id === id);
+};
+
+// Helper function to get client by ID
+export const getClientById = (id: string): Client | undefined => {
+  return clients.find(client => client.id === id);
 };
 
 // Helper function to get supplier by project ID
