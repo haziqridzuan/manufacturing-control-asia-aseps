@@ -1,5 +1,6 @@
+
 import { BarChart, PieChart } from "recharts";
-import { Package, Users, Calendar, ArrowRight, Gauge, Clock, Check, Database, ShoppingCart, ExternalLink } from "lucide-react";
+import { Package, Users, Calendar, ArrowRight, Gauge, Clock, Check, Database, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import StatCard from "@/components/dashboard/StatCard";
 import StatusBadge from "@/components/ui/StatusBadge";
@@ -8,46 +9,8 @@ import { Button } from "@/components/ui/button";
 import { projects, suppliers, getSupplierById, getDaysRemaining, formatDate, purchaseOrders, getActivePOs, getCompletedPOs } from "@/data/mockData";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Project } from "@/types";
-import { adaptProject } from "@/utils/typeAdapters";
 
 const Dashboard = () => {
-  const [activeProjects, setActiveProjects] = useState<Project[]>([]);
-  
-  useEffect(() => {
-    // In a real app, this would fetch data from Supabase
-    const fetchData = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('projects')
-          .select('*')
-          .eq('status', 'in-progress');
-          
-        if (error) {
-          console.error('Error fetching active projects:', error);
-          return;
-        }
-        
-        if (data) {
-          // Convert Supabase row format to our app format
-          const adaptedProjects = data.map((row) => adaptProject(row));
-          setActiveProjects(adaptedProjects);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-    
-    // For now, use mock data
-    setActiveProjects(projects.filter(p => p.status === 'in-progress'));
-    
-    // Uncomment when Supabase is connected
-    // fetchData();
-  }, []);
-  
   // Calculate metrics
   const totalProjects = projects.length;
   const completedProjects = projects.filter(p => p.status === "completed").length;
@@ -114,75 +77,6 @@ const Dashboard = () => {
         />
       </div>
       
-      {/* Task #15: List of Active Projects - Added larger section near top */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-xl">List of Active Projects</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[200px]">Project Name</TableHead>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Progress</TableHead>
-                  <TableHead>Deadline</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {activeProjects.map(project => {
-                  const daysRemaining = getDaysRemaining(project.deadline);
-                  
-                  return (
-                    <TableRow key={project.id}>
-                      <TableCell className="font-medium">{project.name}</TableCell>
-                      <TableCell>{project.clientName || 'N/A'}</TableCell>
-                      <TableCell>{project.location}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <ProgressBar 
-                            progress={project.progress} 
-                            status={project.status} 
-                            className="w-24"
-                          />
-                          <span>{project.progress}%</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className={cn(
-                        daysRemaining < 7 ? 'text-status-delayed' : ''
-                      )}>
-                        {formatDate(project.deadline)}
-                        <div className="text-xs text-muted-foreground">
-                          {daysRemaining} days left
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm" asChild>
-                          <Link to={`/project/${project.id}`}>
-                            View Details
-                          </Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                
-                {activeProjects.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                      No active projects found
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-      
       {/* Project Status and Upcoming Deadlines */}
       <div className="grid gap-4 md:grid-cols-2">
         {/* Project Status Summary */}
@@ -241,10 +135,10 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        {/* Upcoming PO Deadline */}
+        {/* Upcoming Deadlines */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Upcoming PO Deadline</CardTitle>
+            <CardTitle className="text-lg">Upcoming Deadlines</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -311,7 +205,7 @@ const Dashboard = () => {
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="py-3 px-4 text-left">Project Name</th>
-                  <th className="py-3 px-4 text-left">Client Name</th>
+                  <th className="py-3 px-4 text-left">Supplier</th>
                   <th className="py-3 px-4 text-left">Status</th>
                   <th className="py-3 px-4 text-left">Progress</th>
                   <th className="py-3 px-4 text-left">Deadline</th>
@@ -319,6 +213,7 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {projects.slice(0, 5).map(project => {
+                  const supplier = getSupplierById(project.supplierId);
                   return (
                     <tr key={project.id} className="border-b last:border-0 hover:bg-muted/50">
                       <td className="py-3 px-4">
@@ -326,7 +221,7 @@ const Dashboard = () => {
                           {project.name}
                         </Link>
                       </td>
-                      <td className="py-3 px-4">{project.clientName || "N/A"}</td>
+                      <td className="py-3 px-4">{supplier?.name}</td>
                       <td className="py-3 px-4">
                         <StatusBadge status={project.status} />
                       </td>

@@ -1,125 +1,97 @@
 
-import { useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  BarChart2,
-  Calendar,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  ExternalLink,
-  Home,
-  Package,
-  Settings,
-  TrendingUp,
-  Truck,
-  Users
-} from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { NavLink } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { AreaChart, Home, CalendarDays, Users, Settings, Package, Link2 } from 'lucide-react';
 
-export function Sidebar() {
-  const [expanded, setExpanded] = useState(true);
-  const { pathname } = useLocation();
+const Sidebar = () => {
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
-  
-  // Always collapse on mobile
-  const isExpanded = isMobile ? false : expanded;
-  
-  const toggleSidebar = () => {
-    setExpanded(!expanded);
-  };
   
   const links = [
-    { name: "Dashboard", path: "/", icon: Home },
-    { name: "Projects", path: "/projects", icon: Package },
-    { name: "Suppliers", path: "/suppliers", icon: Truck },
-    { name: "Timeline", path: "/timeline", icon: Calendar },
-    { name: "Analytics", path: "/analytics", icon: TrendingUp },
-    { name: "External Links", path: "/external-links", icon: ExternalLink },
-    { name: "Admin", path: "/admin", icon: Settings },
+    {
+      title: 'Dashboard',
+      icon: Home,
+      href: '/',
+    },
+    {
+      title: 'Projects',
+      icon: Package,
+      href: '/projects',
+    },
+    {
+      title: 'Suppliers',
+      icon: Users,
+      href: '/suppliers',
+    },
+    {
+      title: 'Timeline',
+      icon: CalendarDays,
+      href: '/timeline',
+    },
+    {
+      title: 'Analytics',
+      icon: AreaChart,
+      href: '/analytics',
+    },
+    {
+      title: 'External Links',
+      icon: Link2,
+      href: '/external-links',
+    },
+    {
+      title: 'Admin',
+      icon: Settings,
+      href: '/admin',
+    },
   ];
   
-  const isActive = (path: string) => {
-    if (path === "/") {
-      return pathname === "/";
-    }
-    return pathname.startsWith(path);
-  };
-
   return (
-    <div 
+    <div
       className={cn(
-        "flex flex-col border-r h-screen sticky top-0 bg-background transition-all duration-300",
-        isExpanded ? "w-64" : "w-20"
+        'fixed left-0 top-0 h-full z-40 border-r transition-all duration-300',
+        'dark:bg-slate-800 dark:border-slate-700',
+        isMobile ? 'w-16' : 'w-64',
       )}
     >
-      {/* Logo */}
-      <div className="p-4 border-b flex items-center justify-between h-16">
-        <div className="flex items-center">
-          <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold">
-            {/* Logo initiial */}
-            A
-          </div>
-          {isExpanded && (
-            <span className="ml-3 font-semibold text-xl"></span>
+      <div className="flex flex-col h-full bg-white dark:bg-slate-800">
+        {/* Logo */}
+        <div className={cn(
+          'py-4 border-b flex justify-center items-center',
+          'dark:border-slate-700',
+          isMobile ? 'px-2' : 'px-6',
+        )}>
+          <span className={cn(
+            'text-xl font-bold dark:text-white',
+            isMobile && 'hidden',
+          )}>
+            ASEPS Asia
+          </span>
+          {isMobile && (
+            <span className="text-xl font-bold dark:text-white">A</span>
           )}
         </div>
-        {!isMobile && (
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-8 w-8" 
-            onClick={toggleSidebar}
-          >
-            {isExpanded ? <ChevronsLeft className="h-4 w-4" /> : <ChevronsRight className="h-4 w-4" />}
-          </Button>
-        )}
-      </div>
-      
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4">
-        <ul className="space-y-1 px-2">
-          {links.map(link => (
-            <li key={link.path}>
-              <NavLink
-                to={link.path}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center py-2 px-3 rounded-md text-sm font-medium",
-                    "hover:bg-accent hover:text-accent-foreground",
-                    isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground",
-                    !isExpanded && "justify-center"
-                  )
-                }
-              >
-                <link.icon className="h-5 w-5" />
-                {isExpanded && <span className="ml-3">{link.name}</span>}
-              </NavLink>
-            </li>
+        
+        {/* Navigation */}
+        <div className="flex flex-col flex-1 p-2 space-y-1 overflow-y-auto">
+          {links.map((link) => (
+            <NavLink
+              key={link.href}
+              to={link.href}
+              className={({ isActive }) => cn(
+                'flex items-center rounded-md py-2 transition-colors hover:bg-muted',
+                'dark:hover:bg-slate-700 dark:text-slate-300',
+                isActive ? 'bg-muted text-primary dark:bg-slate-700 dark:text-white' : 'text-muted-foreground hover:text-primary dark:hover:text-white',
+                isMobile ? 'justify-center px-2' : 'px-3',
+              )}
+            >
+              <link.icon className={cn('h-5 w-5', !isMobile && 'mr-3')} />
+              {!isMobile && <span>{link.title}</span>}
+            </NavLink>
           ))}
-        </ul>
-      </nav>
-      
-      {/* User */}
-      <div className="p-4 border-t">
-        <Button
-          variant="ghost"
-          size={isExpanded ? "default" : "icon"}
-          onClick={() => navigate("/admin")}
-          className={cn(
-            "w-full flex items-center justify-center",
-            isExpanded ? "justify-start" : "justify-center"
-          )}
-        >
-          <div className="h-5 w-5 rounded-full bg-muted-foreground/20 flex items-center justify-center text-muted-foreground">
-            <Users className="h-3 w-3" />
-          </div>
-          {isExpanded && <span className="ml-2">Admin</span>}
-        </Button>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default Sidebar;
