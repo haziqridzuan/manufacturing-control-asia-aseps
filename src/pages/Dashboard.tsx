@@ -1,30 +1,24 @@
 
-import { BarChart, PieChart } from "recharts";
+import { useEffect, useState } from "react";
 import { Package, Users, Calendar, ArrowRight, Gauge, Clock, Check, Database, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import StatCard from "@/components/dashboard/StatCard";
 import StatusBadge from "@/components/ui/StatusBadge";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/button";
-import { 
-  projects, 
-  suppliers, 
-  getSupplierById, 
-  getDaysRemaining, 
-  formatDate, 
-  purchaseOrders, 
-  getActivePOs, 
-  getCompletedPOs, 
-  clients,
-  getClientById,
-  getClientByProjectId,
-  getUpcomingPODeadlines
-} from "@/data/mockData";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useProjects, useSuppliers, usePurchaseOrders, useClients } from "@/hooks/useSupabase";
+import { Project, Supplier, PurchaseOrder, Client } from "@/types";
+import { formatDate } from "@/data/mockData"; // We'll keep using this utility function
 
 const Dashboard = () => {
+  const { data: projects = [] } = useProjects();
+  const { data: suppliers = [] } = useSuppliers();
+  const { data: purchaseOrders = [] } = usePurchaseOrders();
+  const { data: clients = [] } = useClients();
+  
   // Calculate metrics
   const totalProjects = projects.length;
   const completedProjects = projects.filter(p => p.status === "completed").length;
@@ -33,8 +27,8 @@ const Dashboard = () => {
   const totalSuppliers = suppliers.length;
   
   // PO metrics
-  const activePOs = getActivePOs().length;
-  const completedPOs = getCompletedPOs().length;
+  const activePOs = purchaseOrders.filter(po => po.status === "active").length;
+  const completedPOs = purchaseOrders.filter(po => po.status === "completed").length;
   const totalPOs = purchaseOrders.length;
   
   // Get upcoming deadlines (projects sorted by nearest deadline)
@@ -42,12 +36,40 @@ const Dashboard = () => {
     .filter(p => p.status !== "completed")
     .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
     .slice(0, 5);
-    
-  // Get upcoming PO deadlines
-  const upcomingPODeadlines = getUpcomingPODeadlines();
   
-  // Get active projects
-  const activeProjects = projects.filter(p => p.status === "in-progress" || p.status === "delayed");
+  // Get upcoming PO deadlines
+  const upcomingPODeadlines = [...purchaseOrders]
+    .filter(po => po.status !== "completed" && po.contractualDeadline)
+    .sort((a, b) => new Date(a.contractualDeadline || "").getTime() - new Date(b.contractualDeadline || "").getTime())
+    .slice(0, 5);
+
+  // Helper functions
+  const getClientById = (clientId: string): Client | undefined => {
+    return clients.find(c => c.id === clientId);
+  };
+  
+  const getSupplierById = (supplierId: string): Supplier | undefined => {
+    return suppliers.find(s => s.id === supplierId);
+  };
+  
+  const getProjectById = (projectId: string): Project | undefined => {
+    return projects.find(p => p.id === projectId);
+  };
+  
+  const getClientByProjectId = (projectId: string): Client | undefined => {
+    const project = projects.find(p => p.id === projectId);
+    if (project && project.clientId) {
+      return clients.find(c => c.id === project.clientId);
+    }
+    return undefined;
+  };
+  
+  const getDaysRemaining = (dateString: string): number => {
+    const targetDate = new Date(dateString).getTime();
+    const currentDate = new Date().getTime();
+    const differenceInDays = Math.ceil((targetDate - currentDate) / (1000 * 60 * 60 * 24));
+    return differenceInDays;
+  };
 
   return (
     <div className="space-y-6">
@@ -75,25 +97,25 @@ const Dashboard = () => {
           title="Completed Projects" 
           value={completedProjects} 
           icon={<Check className="h-4 w-4 text-muted-foreground" />}
-          trend={{ value: Math.round((completedProjects / totalProjects) * 100), positive: true }}
+          trend={{ value: Math.round((completedProjects / totalProjects) * 100) || 0, positive: true }}
         />
         <StatCard 
           title="Delayed Projects" 
           value={delayedProjects} 
           icon={<Clock className="h-4 w-4 text-muted-foreground" />}
-          trend={{ value: Math.round((delayedProjects / totalProjects) * 100), positive: false }}
+          trend={{ value: Math.round((delayedProjects / totalProjects) * 100) || 0, positive: false }}
         />
         <StatCard 
           title="Active POs" 
           value={activePOs} 
           icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
-          trend={{ value: Math.round((activePOs / totalPOs) * 100), positive: true }}
+          trend={{ value: Math.round((activePOs / totalPOs) * 100) || 0, positive: true }}
         />
         <StatCard 
           title="Completed POs" 
           value={completedPOs} 
           icon={<Database className="h-4 w-4 text-muted-foreground" />}
-          trend={{ value: Math.round((completedPOs / totalPOs) * 100), positive: true }}
+          trend={{ value: Math.round((completedPOs / totalPOs) * 100) || 0, positive: true }}
         />
       </div>
       
@@ -111,7 +133,7 @@ const Dashboard = () => {
                 <span className="font-medium">{completedProjects}</span>
               </div>
               <ProgressBar 
-                progress={Math.round((completedProjects / totalProjects) * 100)} 
+                progress={Math.round((completedProjects / totalProjects) * 100) || 0} 
                 status="completed" 
               />
               
@@ -120,7 +142,7 @@ const Dashboard = () => {
                 <span className="font-medium">{inProgressProjects}</span>
               </div>
               <ProgressBar 
-                progress={Math.round((inProgressProjects / totalProjects) * 100)} 
+                progress={Math.round((inProgressProjects / totalProjects) * 100) || 0} 
                 status="in-progress" 
               />
               
@@ -129,7 +151,7 @@ const Dashboard = () => {
                 <span className="font-medium">{delayedProjects}</span>
               </div>
               <ProgressBar 
-                progress={Math.round((delayedProjects / totalProjects) * 100)} 
+                progress={Math.round((delayedProjects / totalProjects) * 100) || 0} 
                 status="delayed" 
               />
               
@@ -140,7 +162,7 @@ const Dashboard = () => {
                 </span>
               </div>
               <ProgressBar 
-                progress={Math.round(((totalProjects - (completedProjects + inProgressProjects + delayedProjects)) / totalProjects) * 100)} 
+                progress={Math.round(((totalProjects - (completedProjects + inProgressProjects + delayedProjects)) / totalProjects) * 100) || 0} 
                 status="pending" 
               />
               
@@ -165,7 +187,7 @@ const Dashboard = () => {
               {upcomingPODeadlines.map(po => {
                 const supplier = getSupplierById(po.supplierId);
                 const daysRemaining = po.contractualDeadline ? getDaysRemaining(po.contractualDeadline) : 0;
-                const project = projects.find(p => p.id === po.projectId);
+                const project = getProjectById(po.projectId);
                 
                 return (
                   <div key={po.id} className="flex items-center justify-between">
@@ -214,73 +236,6 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
-      
-      {/* Active Projects */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Active Projects</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="py-3 px-4 text-left">Project Name</th>
-                  <th className="py-3 px-4 text-left">Client</th>
-                  <th className="py-3 px-4 text-left">Status</th>
-                  <th className="py-3 px-4 text-left">Progress</th>
-                  <th className="py-3 px-4 text-left">Deadline</th>
-                  <th className="py-3 px-4 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activeProjects.map(project => {
-                  const client = getClientByProjectId(project.id);
-                  return (
-                    <tr key={project.id} className="border-b last:border-0 hover:bg-muted/50">
-                      <td className="py-3 px-4">
-                        <Link to={`/project/${project.id}`} className="font-medium hover:underline">
-                          {project.name}
-                        </Link>
-                      </td>
-                      <td className="py-3 px-4">{client?.name || "N/A"}</td>
-                      <td className="py-3 px-4">
-                        <StatusBadge status={project.status} />
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center space-x-2">
-                          <ProgressBar 
-                            progress={project.progress} 
-                            status={project.status}
-                            className="w-24" 
-                          />
-                          <span>{project.progress}%</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">{formatDate(project.deadline)}</td>
-                      <td className="py-3 px-4">
-                        <Button variant="outline" size="sm" asChild>
-                          <Link to={`/project/${project.id}`}>
-                            View Details
-                          </Link>
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-                
-                {activeProjects.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="py-6 text-center text-muted-foreground">
-                      No active projects at the moment.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
       
       {/* Recent Projects */}
       <Card>

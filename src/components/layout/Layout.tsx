@@ -4,6 +4,7 @@ import Sidebar from './Sidebar';
 import { cn } from '@/lib/utils';
 import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import SeedDataButton from './SeedDataButton';
 
 interface LayoutProps {
   children: ReactNode;
@@ -65,6 +66,7 @@ const Layout = ({ children }: LayoutProps) => {
             </div>
           </div>
           {children}
+          <SeedDataButton />
         </main>
       </div>
     </div>
