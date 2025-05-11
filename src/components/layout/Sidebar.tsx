@@ -60,7 +60,7 @@ export function Sidebar() {
       <div className="p-4 border-b flex items-center justify-between h-16">
         <div className="flex items-center">
           <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold">
-            {/* Actemium Logo or initials could go here */}
+            {/* Logo initiial */}
             A
           </div>
           {isExpanded && (

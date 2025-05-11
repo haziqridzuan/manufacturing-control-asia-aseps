@@ -1,5 +1,4 @@
-
-import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus, SupplierComment } from "@/types";
+import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus, SupplierComment, Client, TeamMember, ExternalLink, ExternalLinkType } from "@/types";
 
 // Add comments to suppliers
 const supplierComments: SupplierComment[] = [
@@ -574,6 +573,142 @@ export const purchaseOrders: PurchaseOrder[] = [
   }
 ];
 
+// Define clients
+export const clients: Client[] = [
+  {
+    id: "c1",
+    name: "NYC Development Corp",
+    contactPerson: "Robert Johnson",
+    email: "r.johnson@nycdevelopment.com",
+    phone: "+1 212-555-6789",
+    country: "United States",
+    address: "123 Broadway, New York, NY 10001"
+  },
+  {
+    id: "c2",
+    name: "Tokyo Metro Authority",
+    contactPerson: "Hiroshi Yamamoto",
+    email: "h.yamamoto@tokyometro.jp",
+    phone: "+81 3-5321-7890",
+    country: "Japan",
+    address: "1-2-3 Marunouchi, Chiyoda-ku, Tokyo 100-0005"
+  },
+  {
+    id: "c3",
+    name: "Berlin Commercial Developers",
+    contactPerson: "Hannah Weber",
+    email: "h.weber@berlincommercial.de",
+    phone: "+49 30-9876-5432",
+    country: "Germany",
+    address: "Friedrichstraße 123, 10117 Berlin"
+  },
+  {
+    id: "c4",
+    name: "Sao Paulo Infrastructure Authority",
+    contactPerson: "Paulo Silva",
+    email: "p.silva@saopauloinfra.br",
+    phone: "+55 11-7654-3210",
+    country: "Brazil",
+    address: "Av. Paulista 1234, São Paulo, SP 01310-000"
+  },
+  {
+    id: "c5",
+    name: "Cape Town Airport Authority",
+    contactPerson: "James Nkomo",
+    email: "j.nkomo@capetownairport.co.za",
+    phone: "+27 21-876-5432",
+    country: "South Africa",
+    address: "Airport Approach Road, Cape Town, 7525"
+  },
+  {
+    id: "c6",
+    name: "Dubai Property Development",
+    contactPerson: "Mohammed Al-Hassan",
+    email: "m.alhassan@dubaiproperty.ae",
+    phone: "+971 4-222-3333",
+    country: "United Arab Emirates",
+    address: "Sheikh Zayed Road, Dubai, UAE"
+  }
+];
+
+// Define team members
+export const teamMembers: TeamMember[] = [
+  {
+    id: "tm1",
+    name: "John Davis",
+    role: "Project Manager",
+    email: "john.davis@company.com",
+    phone: "+1 555-987-6543",
+    department: "Project Management"
+  },
+  {
+    id: "tm2",
+    name: "Michael Chen",
+    role: "Manufacturing Supervisor",
+    email: "m.chen@company.com",
+    phone: "+1 555-456-7890",
+    department: "Manufacturing"
+  },
+  {
+    id: "tm3",
+    name: "Sarah Johnson",
+    role: "Procurement Manager",
+    email: "s.johnson@company.com",
+    phone: "+1 555-234-5678",
+    department: "Procurement"
+  },
+  {
+    id: "tm4",
+    name: "Akira Tanaka",
+    role: "Quality Assurance Lead",
+    email: "a.tanaka@company.com",
+    phone: "+81 3-1234-5678",
+    department: "Quality Control"
+  },
+  {
+    id: "tm5",
+    name: "Klaus Schmidt",
+    role: "Engineering Director",
+    email: "k.schmidt@company.com",
+    phone: "+49 30-8765-4321",
+    department: "Engineering"
+  }
+];
+
+// Define external links
+export const externalLinks: ExternalLink[] = [
+  {
+    id: "el1",
+    title: "Weekly Manufacturing Report - P1",
+    url: "H:\\Realisation\\01-Projets_En_Cours\\P0664204-I63-FORMULA_UK_Blue Bird Line\\03-ACHAT\\05-Suivi_fabrications\\VIETNAM\\HONG CHAU\\PO966029670 [chaudronnerie asie]\\Weekly report\\Week23.pdf",
+    type: "weekly-report",
+    projectId: "p1",
+    poId: "po1",
+    dateAdded: "2025-04-10",
+    description: "Week 23 manufacturing progress report"
+  },
+  {
+    id: "el2",
+    title: "Manufacturing Photos - Tokyo Metro",
+    url: "H:\\Realisation\\01-Projets_En_Cours\\Tokyo_Metro\\Photos\\batch3\\",
+    type: "photos",
+    projectId: "p2",
+    poId: "po3",
+    dateAdded: "2025-01-15",
+    description: "Batch 3 of manufacturing photos for glass panels"
+  },
+  {
+    id: "el3",
+    title: "Shipment Tracking - Berlin Complex",
+    url: "H:\\Realisation\\01-Projets_En_Cours\\Berlin_Commercial\\Shipping\\tracking_docs\\",
+    type: "tracking",
+    projectId: "p3",
+    poId: "po5",
+    dateAdded: "2025-02-28",
+    description: "Shipping documents and tracking information"
+  }
+];
+
 // Update projects with manager information
 projects.forEach(project => {
   if (project.id === "p1") {
@@ -670,4 +805,20 @@ export const getPOById = (id: string): PurchaseOrder | undefined => {
 export const getCommentsBySupplierId = (supplierId: string): SupplierComment[] => {
   const supplier = suppliers.find(s => s.id === supplierId);
   return supplier?.comments || [];
+};
+
+// Add helper functions for the new data types
+export const getClientById = (id: string): Client | undefined => {
+  return clients.find(client => client.id === id);
+};
+
+export const getClientByProjectId = (projectId: string): Client | undefined => {
+  const project = projects.find(p => p.id === projectId);
+  if (!project) return undefined;
+  
+  return clients.find(c => c.id === project.clientId);
+};
+
+export const getTeamMemberById = (id: string): TeamMember | undefined => {
+  return teamMembers.find(member => member.id === id);
 };

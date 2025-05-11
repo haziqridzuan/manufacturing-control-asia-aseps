@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +10,7 @@ import { Supplier, Project, PurchaseOrder, Client, TeamMember, ExternalLink, Ext
 import { suppliers, projects, clients, teamMembers, purchaseOrders } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { adaptSupabaseSupplierToApp, adaptSupabaseProjectToApp, adaptSupabasePOToApp } from '@/utils/typeAdapters';
 
 const Admin = () => {
   // Suppliers state
@@ -50,10 +50,38 @@ const Admin = () => {
         if (suppliersError) {
           console.error('Error fetching suppliers:', suppliersError);
         } else if (suppliersData) {
-          setSuppliersList(suppliersData as Supplier[]);
+          // Convert Supabase data to app format
+          const adaptedSuppliers = suppliersData.map(adaptSupabaseSupplierToApp);
+          setSuppliersList(adaptedSuppliers);
         }
         
-        // Fetch projects, POs, clients, and team members similarly
+        // Fetch projects
+        const { data: projectsData, error: projectsError } = await supabase
+          .from('projects')
+          .select('*');
+          
+        if (projectsError) {
+          console.error('Error fetching projects:', projectsError);
+        } else if (projectsData) {
+          // Convert Supabase data to app format
+          const adaptedProjects = projectsData.map(adaptSupabaseProjectToApp);
+          setProjectsList(adaptedProjects);
+        }
+        
+        // Fetch purchase orders
+        const { data: posData, error: posError } = await supabase
+          .from('purchase_orders')
+          .select('*');
+          
+        if (posError) {
+          console.error('Error fetching purchase orders:', posError);
+        } else if (posData) {
+          // Convert Supabase data to app format
+          const adaptedPOs = posData.map(adaptSupabasePOToApp);
+          setPosList(adaptedPOs);
+        }
+        
+        // Fetch clients and team members similarly
         
       } catch (error) {
         console.error('Error:', error);
@@ -75,8 +103,8 @@ const Admin = () => {
       phone: '',
       rating: 3.0,
       onTimeDeliveryRate: 0,
-      comments: [], // Add the missing comments array
-      location: ''  // Add the missing location property
+      comments: [],
+      location: ''
     };
     
     setEditSupplier(newSupplier);
@@ -89,10 +117,21 @@ const Admin = () => {
     
     try {
       if (editSupplier.id.startsWith('s')) {
-        // New supplier
+        // New supplier - convert to Supabase format
+        const supabaseSupplier = {
+          name: editSupplier.name,
+          country: editSupplier.country,
+          contact_person: editSupplier.contactPerson,
+          email: editSupplier.email,
+          phone: editSupplier.phone,
+          rating: editSupplier.rating,
+          on_time_delivery_rate: editSupplier.onTimeDeliveryRate,
+          location: editSupplier.location
+        };
+        
         const { data, error } = await supabase
           .from('suppliers')
-          .insert([editSupplier]);
+          .insert([supabaseSupplier]);
           
         if (error) {
           console.error('Error adding supplier:', error);
@@ -110,10 +149,22 @@ const Admin = () => {
           description: "Supplier added successfully",
         });
       } else {
-        // Update existing supplier
+        // Update existing supplier - convert to Supabase format
+        const supabaseSupplier = {
+          id: editSupplier.id,
+          name: editSupplier.name,
+          country: editSupplier.country,
+          contact_person: editSupplier.contactPerson,
+          email: editSupplier.email,
+          phone: editSupplier.phone,
+          rating: editSupplier.rating,
+          on_time_delivery_rate: editSupplier.onTimeDeliveryRate,
+          location: editSupplier.location
+        };
+        
         const { error } = await supabase
           .from('suppliers')
-          .update(editSupplier)
+          .update(supabaseSupplier)
           .eq('id', editSupplier.id);
           
         if (error) {
@@ -176,10 +227,25 @@ const Admin = () => {
     
     try {
       if (editProject.id.startsWith('p')) {
-        // New project
+        // New project - convert to Supabase format
+        const supabaseProject = {
+          name: editProject.name,
+          description: editProject.description,
+          status: editProject.status,
+          progress: editProject.progress,
+          start_date: editProject.startDate,
+          deadline: editProject.deadline,
+          budget: editProject.budget,
+          supplier_id: editProject.supplierId,
+          location: editProject.location,
+          project_manager: editProject.projectManager,
+          client_name: editProject.clientName,
+          client_id: editProject.clientId
+        };
+        
         const { data, error } = await supabase
           .from('projects')
-          .insert([editProject]);
+          .insert([supabaseProject]);
           
         if (error) {
           console.error('Error adding project:', error);
@@ -197,10 +263,26 @@ const Admin = () => {
           description: "Project added successfully",
         });
       } else {
-        // Update existing project
+        // Update existing project - convert to Supabase format
+        const supabaseProject = {
+          id: editProject.id,
+          name: editProject.name,
+          description: editProject.description,
+          status: editProject.status,
+          progress: editProject.progress,
+          start_date: editProject.startDate,
+          deadline: editProject.deadline,
+          budget: editProject.budget,
+          supplier_id: editProject.supplierId,
+          location: editProject.location,
+          project_manager: editProject.projectManager,
+          client_name: editProject.clientName,
+          client_id: editProject.clientId
+        };
+        
         const { error } = await supabase
           .from('projects')
-          .update(editProject)
+          .update(supabaseProject)
           .eq('id', editProject.id);
           
         if (error) {
@@ -246,7 +328,7 @@ const Admin = () => {
       clientId: clients[0].id,
       clientName: clients[0].name,
       dateCreated: new Date().toISOString().split('T')[0],
-      contractualDeadline: new Date().toISOString().split('T')[0], // Add the required contractualDeadline field
+      contractualDeadline: new Date().toISOString().split('T')[0],
       placedBy: '',
       status: 'active',
       progress: 0
@@ -262,10 +344,25 @@ const Admin = () => {
     
     try {
       if (editPO.id.startsWith('po')) {
-        // New PO
+        // New PO - convert to Supabase format
+        const supabasePO = {
+          po_number: editPO.poNumber,
+          project_id: editPO.projectId,
+          part_name: editPO.partName,
+          quantity: editPO.quantity,
+          supplier_id: editPO.supplierId,
+          client_id: editPO.clientId,
+          client_name: editPO.clientName,
+          date_created: editPO.dateCreated,
+          contractual_deadline: editPO.contractualDeadline,
+          placed_by: editPO.placedBy,
+          status: editPO.status,
+          progress: editPO.progress || 0
+        };
+        
         const { data, error } = await supabase
           .from('purchase_orders')
-          .insert([editPO]);
+          .insert([supabasePO]);
           
         if (error) {
           console.error('Error adding PO:', error);
@@ -283,10 +380,26 @@ const Admin = () => {
           description: "Purchase order added successfully",
         });
       } else {
-        // Update existing PO
+        // Update existing PO - convert to Supabase format
+        const supabasePO = {
+          id: editPO.id,
+          po_number: editPO.poNumber,
+          project_id: editPO.projectId,
+          part_name: editPO.partName,
+          quantity: editPO.quantity,
+          supplier_id: editPO.supplierId,
+          client_id: editPO.clientId,
+          client_name: editPO.clientName,
+          date_created: editPO.dateCreated,
+          contractual_deadline: editPO.contractualDeadline,
+          placed_by: editPO.placedBy,
+          status: editPO.status,
+          progress: editPO.progress || 0
+        };
+        
         const { error } = await supabase
           .from('purchase_orders')
-          .update(editPO)
+          .update(supabasePO)
           .eq('id', editPO.id);
           
         if (error) {
@@ -781,261 +894,4 @@ const Admin = () => {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="partName">Part Name</Label>
-                      <Input 
-                        id="partName" 
-                        value={editPO?.partName || ''} 
-                        onChange={e => setEditPO(prev => prev ? {...prev, partName: e.target.value} : null)} 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="quantity">Quantity</Label>
-                      <Input 
-                        id="quantity" 
-                        type="number" 
-                        value={editPO?.quantity || 0} 
-                        onChange={e => setEditPO(prev => prev ? {...prev, quantity: Number(e.target.value)} : null)} 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="supplierId">Supplier</Label>
-                      <Select 
-                        value={editPO?.supplierId} 
-                        onValueChange={value => setEditPO(prev => prev ? {...prev, supplierId: value} : null)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select supplier" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {suppliers.map(supplier => (
-                            <SelectItem key={supplier.id} value={supplier.id}>
-                              {supplier.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="clientId">Client</Label>
-                      <Select 
-                        value={editPO?.clientId} 
-                        onValueChange={value => {
-                          const client = clients.find(c => c.id === value);
-                          setEditPO(prev => prev ? {
-                            ...prev, 
-                            clientId: value,
-                            clientName: client?.name || ''
-                          } : null);
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select client" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {clients.map(client => (
-                            <SelectItem key={client.id} value={client.id}>
-                              {client.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="dateCreated">Date Created</Label>
-                      <Input 
-                        id="dateCreated" 
-                        type="date" 
-                        value={editPO?.dateCreated || ''} 
-                        onChange={e => setEditPO(prev => prev ? {...prev, dateCreated: e.target.value} : null)} 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="contractualDeadline">Contractual Deadline</Label>
-                      <Input 
-                        id="contractualDeadline" 
-                        type="date" 
-                        value={editPO?.contractualDeadline || ''} 
-                        onChange={e => setEditPO(prev => prev ? {...prev, contractualDeadline: e.target.value} : null)} 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="placedBy">Placed By</Label>
-                      <Input 
-                        id="placedBy" 
-                        value={editPO?.placedBy || ''} 
-                        onChange={e => setEditPO(prev => prev ? {...prev, placedBy: e.target.value} : null)} 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="status">Status</Label>
-                      <Select 
-                        value={editPO?.status} 
-                        onValueChange={value => setEditPO(prev => prev ? {...prev, status: value as POStatus} : null)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="completed">Completed</SelectItem>
-                          <SelectItem value="cancelled">Cancelled</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="shipmentDate">Shipment Date</Label>
-                      <Input 
-                        id="shipmentDate" 
-                        type="date" 
-                        value={editPO?.shipmentDate || ''} 
-                        onChange={e => setEditPO(prev => prev ? {...prev, shipmentDate: e.target.value} : null)} 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="progress">Progress (%)</Label>
-                      <Input 
-                        id="progress" 
-                        type="number" 
-                        min="0"
-                        max="100"
-                        value={editPO?.progress || 0} 
-                        onChange={e => setEditPO(prev => prev ? {...prev, progress: Number(e.target.value)} : null)} 
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button variant="outline" onClick={() => {
-                      setShowAddPO(false);
-                      setEditPO(null);
-                    }}>Cancel</Button>
-                    <Button onClick={savePO}>Save Purchase Order</Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-md border">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b bg-muted/50">
-                        <th className="py-3 px-4 text-left">PO Number</th>
-                        <th className="py-3 px-4 text-left">Project</th>
-                        <th className="py-3 px-4 text-left">Part Name</th>
-                        <th className="py-3 px-4 text-left">Supplier</th>
-                        <th className="py-3 px-4 text-left">Client</th>
-                        <th className="py-3 px-4 text-left">Deadline</th>
-                        <th className="py-3 px-4 text-left">Status</th>
-                        <th className="py-3 px-4 text-left">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {posList.map(po => (
-                        <tr key={po.id} className="border-b last:border-0 hover:bg-muted/50">
-                          <td className="py-3 px-4 font-medium">{po.poNumber}</td>
-                          <td className="py-3 px-4">{projects.find(p => p.id === po.projectId)?.name || "N/A"}</td>
-                          <td className="py-3 px-4">{po.partName}</td>
-                          <td className="py-3 px-4">{suppliers.find(s => s.id === po.supplierId)?.name || "N/A"}</td>
-                          <td className="py-3 px-4">{po.clientName}</td>
-                          <td className="py-3 px-4">{po.contractualDeadline}</td>
-                          <td className="py-3 px-4">
-                            <StatusBadge status={po.status} />
-                          </td>
-                          <td className="py-3 px-4">
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => {
-                                setEditPO(po);
-                                setShowAddPO(true);
-                              }}
-                            >
-                              Edit
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Team Tab */}
-        <TabsContent value="team">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-lg">Manage Team Members</CardTitle>
-                <Button onClick={() => setShowAddTeamMember(true)}>Add New Team Member</Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {showAddTeamMember ? (
-                <div className="space-y-4 border p-4 rounded-md">
-                  {/* Add Team Member Form */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Name</Label>
-                      <Input id="name" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="role">Role</Label>
-                      <Input id="role" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input id="phone" type="tel" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="department">Department</Label>
-                      <Input id="department" />
-                    </div>
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button variant="outline" onClick={() => setShowAddTeamMember(false)}>Cancel</Button>
-                    <Button>Save Team Member</Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-md border">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b bg-muted/50">
-                        <th className="py-3 px-4 text-left">Name</th>
-                        <th className="py-3 px-4 text-left">Role</th>
-                        <th className="py-3 px-4 text-left">Email</th>
-                        <th className="py-3 px-4 text-left">Phone</th>
-                        <th className="py-3 px-4 text-left">Department</th>
-                        <th className="py-3 px-4 text-left">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {teamMembersList.map(member => (
-                        <tr key={member.id} className="border-b last:border-0 hover:bg-muted/50">
-                          <td className="py-3 px-4 font-medium">{member.name}</td>
-                          <td className="py-3 px-4">{member.role}</td>
-                          <td className="py-3 px-4">{member.email}</td>
-                          <td className="py-3 px-4">{member.phone || "N/A"}</td>
-                          <td className="py-3 px-4">{member.department}</td>
-                          <td className="py-3 px-4">
-                            <Button variant="ghost" size="sm">Edit</Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-};
-
-export default Admin;
+                      <
