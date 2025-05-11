@@ -9,6 +9,7 @@ import { FileArchive, FileText, Link2, Filter } from "lucide-react";
 import { projects, purchaseOrders, suppliers } from "@/data/mockData";
 import { supabase } from "@/integrations/supabase/client";
 import { adaptExternalLink } from "@/utils/typeAdapters";
+import { fetchExternalLinks } from "@/utils/supabaseHelpers";
 
 // Mock data for external links - in a real app, this would come from the API
 const externalLinks: ExternalLink[] = [
@@ -51,21 +52,11 @@ const ExternalLinks = () => {
   
   useEffect(() => {
     // In a real app, this would fetch data from Supabase
-    const fetchLinks = async () => {
+    const loadExternalLinks = async () => {
       try {
-        const { data, error } = await supabase
-          .from('external_links')
-          .select('*');
-          
-        if (error) {
-          console.error('Error fetching external links:', error);
-          return;
-        }
-        
-        if (data && data.length > 0) {
-          // Convert Supabase row format to our app format
-          const adaptedLinks = data.map(adaptExternalLink);
-          setLinks(adaptedLinks);
+        const fetchedLinks = await fetchExternalLinks();
+        if (fetchedLinks.length > 0) {
+          setLinks(fetchedLinks);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -73,7 +64,7 @@ const ExternalLinks = () => {
     };
     
     // Uncomment when Supabase is connected
-    // fetchLinks();
+    // loadExternalLinks();
   }, []);
   
   // Filter links based on search term and filters

@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,6 +12,7 @@ import { projects, suppliers, purchaseOrders, getSupplierById, getMilestonesByPr
 import { PurchaseOrder } from '@/types';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchSuppliersInAsia } from '@/utils/supabaseHelpers';
 
 const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,28 +21,19 @@ const ProjectDetails = () => {
   
   useEffect(() => {
     // Fetch suppliers in Asia for this project
-    const fetchSuppliersInAsia = async () => {
+    const loadSuppliersInAsia = async () => {
+      if (!id) return;
+      
       try {
-        const { data, error } = await supabase
-          .from('suppliers')
-          .select('name')
-          .eq('project_id', id)
-          .ilike('location', '%asia%');
-        
-        if (error) {
-          console.error('Error fetching suppliers in Asia:', error);
-          return;
-        }
-        
-        if (data) {
-          setSuppliersInAsia(data.map(supplier => supplier.name));
-        }
+        const supplierNames = await fetchSuppliersInAsia(id);
+        setSuppliersInAsia(supplierNames);
       } catch (error) {
         console.error('Error:', error);
+        setSuppliersInAsia([]);
       }
     };
     
-    fetchSuppliersInAsia();
+    loadSuppliersInAsia();
   }, [id]);
   
   if (!project) {
@@ -51,12 +42,12 @@ const ProjectDetails = () => {
   
   const supplier = getSupplierById(project.supplierId);
   const milestones = getMilestonesByProjectId(project.id);
-  const purchaseOrders = getPOsByProjectId(project.id);
+  const projectPOs = getPOsByProjectId(project.id);
   
   // PO stats
-  const activePOs = purchaseOrders.filter(po => po.status === 'active').length;
-  const completedPOs = purchaseOrders.filter(po => po.status === 'completed').length;
-  const canceledPOs = purchaseOrders.filter(po => po.status === 'cancelled').length;
+  const activePOs = projectPOs.filter(po => po.status === 'active').length;
+  const completedPOs = projectPOs.filter(po => po.status === 'completed').length;
+  const canceledPOs = projectPOs.filter(po => po.status === 'cancelled').length;
   
   // Chart data
   const poStatusData = [
@@ -64,9 +55,11 @@ const ProjectDetails = () => {
     { name: 'Completed', value: completedPOs, color: '#2ecc71' },
     { name: 'Cancelled', value: canceledPOs, color: '#e74c3c' },
   ];
-  
+
   // Group POs by part type for visualization
-  const partData = purchaseOrders.reduce((acc: any[], po) => {
+  type PartData = Array<{name: string, quantity: number}>;
+  
+  const partData: PartData = projectPOs.reduce((acc: PartData, po) => {
     const existingPart = acc.find(item => item.name === po.partName);
     if (existingPart) {
       existingPart.quantity += po.quantity;
@@ -77,8 +70,16 @@ const ProjectDetails = () => {
   }, []);
 
   // Progress by Supplier data
-  const supplierProgressData = purchaseOrders
-    .reduce((acc: Record<string, {name: string, progress: number, count: number}>, po) => {
+  interface SupplierProgress {
+    [key: string]: {
+      name: string;
+      progress: number;
+      count: number;
+    }
+  }
+  
+  const supplierProgressData: SupplierProgress = projectPOs
+    .reduce((acc: SupplierProgress, po) => {
       const supplierName = getSupplierById(po.supplierId)?.name || "Unknown";
       if (!acc[po.supplierId]) {
         acc[po.supplierId] = {
@@ -99,7 +100,7 @@ const ProjectDetails = () => {
   }));
 
   // Progress by PO data
-  const poProgressData = purchaseOrders
+  const poProgressData = projectPOs
     .map(po => ({
       name: po.poNumber,
       progress: po.progress || 0
@@ -218,7 +219,7 @@ const ProjectDetails = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-muted p-3 rounded-md text-center">
-                  <div className="text-2xl font-bold">{purchaseOrders.length}</div>
+                  <div className="text-2xl font-bold">{projectPOs.length}</div>
                   <div className="text-sm text-muted-foreground">Total POs</div>
                 </div>
                 <div className="bg-muted p-3 rounded-md text-center">
@@ -231,13 +232,13 @@ const ProjectDetails = () => {
                 </div>
                 <div className="bg-muted p-3 rounded-md text-center">
                   <div className="text-2xl font-bold text-muted-foreground">
-                    {purchaseOrders.reduce((sum, po) => sum + po.quantity, 0).toLocaleString()}
+                    {projectPOs.reduce((sum, po) => sum + po.quantity, 0).toLocaleString()}
                   </div>
                   <div className="text-sm text-muted-foreground">Total Parts</div>
                 </div>
               </div>
               
-              {purchaseOrders.length > 0 && (
+              {projectPOs.length > 0 && (
                 <div className="h-[120px]">
                   <ChartContainer config={{}}>
                     <ResponsiveContainer width="100%" height="100%">
@@ -339,7 +340,7 @@ const ProjectDetails = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {purchaseOrders
+              {projectPOs
                 .filter(po => po.status !== 'completed' && po.status !== 'cancelled')
                 .sort((a, b) => new Date(a.contractualDeadline).getTime() - new Date(b.contractualDeadline).getTime())
                 .slice(0, 5)
@@ -363,7 +364,7 @@ const ProjectDetails = () => {
                   );
                 })}
                 
-                {purchaseOrders.filter(po => po.status !== 'completed').length === 0 && (
+                {projectPOs.filter(po => po.status !== 'completed').length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-4">No upcoming deadlines</TableCell>
                   </TableRow>
@@ -387,7 +388,7 @@ const ProjectDetails = () => {
               <CardTitle className="text-lg">Purchase Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              {purchaseOrders.length === 0 ? (
+              {projectPOs.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No purchase orders found for this project.
                 </div>
@@ -406,7 +407,7 @@ const ProjectDetails = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {purchaseOrders.map(po => {
+                    {projectPOs.map(po => {
                       const poSupplier = getSupplierById(po.supplierId);
                       
                       return (
@@ -443,9 +444,9 @@ const ProjectDetails = () => {
               <CardTitle className="text-lg">Milestones by PO</CardTitle>
             </CardHeader>
             <CardContent>
-              {purchaseOrders.length > 0 ? (
+              {projectPOs.length > 0 ? (
                 <div className="space-y-8">
-                  {purchaseOrders.map(po => (
+                  {projectPOs.map(po => (
                     <div key={po.id} className="space-y-4">
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-medium">PO: {po.poNumber}</h3>
