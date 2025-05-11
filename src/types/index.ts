@@ -37,6 +37,8 @@ export type Project = {
   milestones: Milestone[];
   projectManager?: string;
   manufacturingManager?: string;
+  clientId?: string;
+  clientName?: string;
 };
 
 export type Milestone = {

@@ -6,7 +6,7 @@ import StatCard from "@/components/dashboard/StatCard";
 import StatusBadge from "@/components/ui/StatusBadge";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/button";
-import { projects, suppliers, getSupplierById, getDaysRemaining, formatDate, purchaseOrders, getActivePOs, getCompletedPOs } from "@/data/mockData";
+import { projects, suppliers, getSupplierById, getDaysRemaining, formatDate, purchaseOrders, getActivePOs, getCompletedPOs, clients, getClientById } from "@/data/mockData";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +27,11 @@ const Dashboard = () => {
   const upcomingDeadlines = [...projects]
     .filter(p => p.status !== "completed")
     .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+    .slice(0, 5);
+
+  // Get active projects
+  const activeProjects = [...projects]
+    .filter(p => p.status === "in-progress" || p.status === "pending")
     .slice(0, 5);
 
   return (
@@ -138,12 +143,13 @@ const Dashboard = () => {
         {/* Upcoming Deadlines */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Upcoming Deadlines</CardTitle>
+            <CardTitle className="text-lg">Upcoming PO Deadlines</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {upcomingDeadlines.map(project => {
                 const supplier = getSupplierById(project.supplierId);
+                const client = project.clientId ? getClientById(project.clientId) : null;
                 const daysRemaining = getDaysRemaining(project.deadline);
                 
                 return (
@@ -151,7 +157,7 @@ const Dashboard = () => {
                     <div>
                       <h3 className="font-medium">{project.name}</h3>
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <span>{supplier?.name}</span>
+                        <span>{client?.name || supplier?.name}</span>
                         <span>•</span>
                         <StatusBadge status={project.status} />
                       </div>
@@ -193,6 +199,67 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Active Projects */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Active Projects</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="py-3 px-4 text-left">Project Name</th>
+                  <th className="py-3 px-4 text-left">Client</th>
+                  <th className="py-3 px-4 text-left">Status</th>
+                  <th className="py-3 px-4 text-left">Progress</th>
+                  <th className="py-3 px-4 text-left">Deadline</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activeProjects.map(project => {
+                  const client = project.clientId ? getClientById(project.clientId) : null;
+                  return (
+                    <tr key={project.id} className="border-b last:border-0 hover:bg-muted/50">
+                      <td className="py-3 px-4">
+                        <Link to={`/project/${project.id}`} className="font-medium hover:underline">
+                          {project.name}
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4">
+                        {client ? client.name : (project.clientName || "N/A")}
+                      </td>
+                      <td className="py-3 px-4">
+                        <StatusBadge status={project.status} />
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center space-x-2">
+                          <ProgressBar 
+                            progress={project.progress} 
+                            status={project.status}
+                            className="w-24" 
+                          />
+                          <span>{project.progress}%</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">{formatDate(project.deadline)}</td>
+                    </tr>
+                  );
+                })}
+                
+                {activeProjects.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-6 text-center text-muted-foreground">
+                      No active projects found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
       
       {/* Recent Projects */}
       <Card>
@@ -205,6 +272,7 @@ const Dashboard = () => {
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="py-3 px-4 text-left">Project Name</th>
+                  <th className="py-3 px-4 text-left">Client</th>
                   <th className="py-3 px-4 text-left">Supplier</th>
                   <th className="py-3 px-4 text-left">Status</th>
                   <th className="py-3 px-4 text-left">Progress</th>
@@ -214,6 +282,7 @@ const Dashboard = () => {
               <tbody>
                 {projects.slice(0, 5).map(project => {
                   const supplier = getSupplierById(project.supplierId);
+                  const client = project.clientId ? getClientById(project.clientId) : null;
                   return (
                     <tr key={project.id} className="border-b last:border-0 hover:bg-muted/50">
                       <td className="py-3 px-4">
@@ -221,7 +290,10 @@ const Dashboard = () => {
                           {project.name}
                         </Link>
                       </td>
-                      <td className="py-3 px-4">{supplier?.name}</td>
+                      <td className="py-3 px-4">
+                        {client ? client.name : (project.clientName || "N/A")}
+                      </td>
+                      <td className="py-3 px-4">{supplier?.name || "N/A"}</td>
                       <td className="py-3 px-4">
                         <StatusBadge status={project.status} />
                       </td>
