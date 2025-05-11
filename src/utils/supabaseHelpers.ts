@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type { 
   Project, 
@@ -16,11 +15,7 @@ import {
   adaptProject,
   adaptPurchaseOrder,
   adaptSupplier,
-  adaptTeamMember,
-  adaptToExternalLinkRow,
-  adaptToPurchaseOrderRow,
-  adaptToProjectRow,
-  adaptToSupplierRow
+  adaptTeamMember
 } from './typeAdapters';
 
 // Projects
