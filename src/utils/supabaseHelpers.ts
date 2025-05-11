@@ -53,9 +53,12 @@ export const fetchProjectById = async (id: string) => {
 };
 
 export const createProject = async (project: Omit<Project, 'id'>) => {
+  // Convert project to the appropriate format for Supabase
+  const supabaseProject = adaptToProjectRow(project);
+  
   const { data, error } = await supabase
     .from('projects')
-    .insert([adaptToProjectRow(project)])
+    .insert(supabaseProject)
     .select();
     
   if (error) {
@@ -67,9 +70,12 @@ export const createProject = async (project: Omit<Project, 'id'>) => {
 };
 
 export const updateProject = async (id: string, project: Partial<Project>) => {
+  // Convert project to the appropriate format for Supabase
+  const supabaseProject = adaptToProjectRow(project);
+  
   const { data, error } = await supabase
     .from('projects')
-    .update(adaptToProjectRow(project))
+    .update(supabaseProject)
     .eq('id', id)
     .select();
     
@@ -213,9 +219,12 @@ export const fetchTeamMembers = async () => {
 
 // Create or update functions for other entities
 export const createSupplier = async (supplier: Omit<Supplier, 'id' | 'comments'>) => {
+  // Convert supplier to the appropriate format for Supabase
+  const supabaseSupplier = adaptToSupplierRow(supplier);
+  
   const { data, error } = await supabase
     .from('suppliers')
-    .insert([adaptToSupplierRow(supplier)])
+    .insert(supabaseSupplier)
     .select();
     
   if (error) {
@@ -227,9 +236,12 @@ export const createSupplier = async (supplier: Omit<Supplier, 'id' | 'comments'>
 };
 
 export const updateSupplier = async (id: string, supplier: Partial<Supplier>) => {
+  // Convert supplier to the appropriate format for Supabase
+  const supabaseSupplier = adaptToSupplierRow(supplier);
+  
   const { data, error } = await supabase
     .from('suppliers')
-    .update(adaptToSupplierRow(supplier))
+    .update(supabaseSupplier)
     .eq('id', id)
     .select();
     
@@ -242,9 +254,12 @@ export const updateSupplier = async (id: string, supplier: Partial<Supplier>) =>
 };
 
 export const createPurchaseOrder = async (order: Omit<PurchaseOrder, 'id'>) => {
+  // Convert purchase order to the appropriate format for Supabase
+  const supabasePO = adaptToPurchaseOrderRow(order);
+  
   const { data, error } = await supabase
     .from('purchase_orders')
-    .insert([adaptToPurchaseOrderRow(order)])
+    .insert(supabasePO)
     .select();
     
   if (error) {
@@ -256,9 +271,12 @@ export const createPurchaseOrder = async (order: Omit<PurchaseOrder, 'id'>) => {
 };
 
 export const updatePurchaseOrder = async (id: string, order: Partial<PurchaseOrder>) => {
+  // Convert purchase order to the appropriate format for Supabase
+  const supabasePO = adaptToPurchaseOrderRow(order);
+  
   const { data, error } = await supabase
     .from('purchase_orders')
-    .update(adaptToPurchaseOrderRow(order))
+    .update(supabasePO)
     .eq('id', id)
     .select();
     
@@ -271,9 +289,12 @@ export const updatePurchaseOrder = async (id: string, order: Partial<PurchaseOrd
 };
 
 export const createExternalLink = async (link: Omit<ExternalLink, 'id'>) => {
+  // Convert external link to the appropriate format for Supabase
+  const supabaseLink = adaptToExternalLinkRow(link);
+  
   const { data, error } = await supabase
     .from('external_links')
-    .insert([adaptToExternalLinkRow(link)])
+    .insert(supabaseLink)
     .select();
     
   if (error) {
@@ -285,9 +306,12 @@ export const createExternalLink = async (link: Omit<ExternalLink, 'id'>) => {
 };
 
 export const updateExternalLink = async (id: string, link: Partial<ExternalLink>) => {
+  // Convert external link to the appropriate format for Supabase
+  const supabaseLink = adaptToExternalLinkRow(link);
+  
   const { data, error } = await supabase
     .from('external_links')
-    .update(adaptToExternalLinkRow(link))
+    .update(supabaseLink)
     .eq('id', id)
     .select();
     

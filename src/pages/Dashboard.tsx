@@ -1,4 +1,3 @@
-
 import { BarChart, PieChart } from "recharts";
 import { Package, Users, Calendar, ArrowRight, Gauge, Clock, Check, Database, ShoppingCart, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Project } from "@/types";
+import { adaptProject } from "@/utils/typeAdapters";
 
 const Dashboard = () => {
   const [activeProjects, setActiveProjects] = useState<Project[]>([]);
@@ -32,7 +32,9 @@ const Dashboard = () => {
         }
         
         if (data) {
-          setActiveProjects(data as Project[]);
+          // Convert Supabase row format to our app format
+          const adaptedProjects = data.map((row) => adaptProject(row));
+          setActiveProjects(adaptedProjects);
         }
       } catch (error) {
         console.error('Error:', error);

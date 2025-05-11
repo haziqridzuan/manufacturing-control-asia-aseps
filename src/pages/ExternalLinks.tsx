@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +8,7 @@ import { ExternalLink, ExternalLinkType } from "@/types";
 import { FileArchive, FileText, Link2, Filter } from "lucide-react";
 import { projects, purchaseOrders, suppliers } from "@/data/mockData";
 import { supabase } from "@/integrations/supabase/client";
+import { adaptExternalLink } from "@/utils/typeAdapters";
 
 // Mock data for external links - in a real app, this would come from the API
 const externalLinks: ExternalLink[] = [
@@ -63,7 +63,9 @@ const ExternalLinks = () => {
         }
         
         if (data && data.length > 0) {
-          setLinks(data as ExternalLink[]);
+          // Convert Supabase row format to our app format
+          const adaptedLinks = data.map(adaptExternalLink);
+          setLinks(adaptedLinks);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -99,6 +101,10 @@ const ExternalLinks = () => {
         return <FileArchive className="h-5 w-5 text-green-500" />;
       case "shipment":
         return <Link2 className="h-5 w-5 text-amber-500" />;
+      case "photos":
+        return <FileArchive className="h-5 w-5 text-purple-500" />;
+      case "tracking":
+        return <Link2 className="h-5 w-5 text-orange-500" />;
       default:
         return <Link2 className="h-5 w-5" />;
     }
@@ -139,6 +145,8 @@ const ExternalLinks = () => {
                   <SelectItem value="weekly-report">Weekly Reports</SelectItem>
                   <SelectItem value="manufacturing-control">Manufacturing Photos</SelectItem>
                   <SelectItem value="shipment">Shipment Tracking</SelectItem>
+                  <SelectItem value="photos">Photos</SelectItem>
+                  <SelectItem value="tracking">Tracking</SelectItem>
                 </SelectContent>
               </Select>
             </div>

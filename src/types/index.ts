@@ -92,7 +92,7 @@ export interface TeamMember {
   phone?: string;
 }
 
-export type ExternalLinkType = "weekly-report" | "manufacturing-control" | "shipment";
+export type ExternalLinkType = "weekly-report" | "manufacturing-control" | "shipment" | "photos" | "tracking";
 
 export interface ExternalLink {
   id: string;
