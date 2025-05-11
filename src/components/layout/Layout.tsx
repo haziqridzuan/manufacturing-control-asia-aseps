@@ -59,7 +59,7 @@ const Layout = ({ children }: LayoutProps) => {
               </Button>
               <img 
                 src="https://www.actemium-mixing-process.com/media/websites/actemium-mixing/img/actemium-logo-baseline.png" 
-                alt="ASEPS Asia Logo" 
+                alt="Actemium Logo" 
                 className="h-8" 
               />
             </div>

@@ -31,12 +31,14 @@ export type Project = {
   startDate: string;
   deadline: string;
   supplierId: string;
+  clientId?: string; // Added clientId field
   location: string;
   description: string;
   budget: number;
   milestones: Milestone[];
   projectManager?: string;
   manufacturingManager?: string;
+  budgetSpent?: number; // Added for budget spent tracking
 };
 
 export type Milestone = {
@@ -45,11 +47,13 @@ export type Milestone = {
   dueDate: string;
   completed: boolean;
   projectId: string;
+  poId?: string; // Added to link milestone to PO
 };
 
 export type FilterOptions = {
   status?: ProjectStatus;
   supplier?: string;
+  client?: string; // Added client filter
   dateRange?: {
     from: Date | undefined;
     to: Date | undefined;
@@ -74,6 +78,7 @@ export type PurchaseOrder = {
   shipmentDate?: string;
   notes?: string;
   progress?: number;
+  budgetSpent?: number; // Added for budget spent tracking
 };
 
 export type ExternalLinkType = 'weekly-report' | 'manufacturing-control' | 'shipment';
@@ -85,6 +90,8 @@ export type ExternalLink = {
   type: ExternalLinkType;
   projectId?: string;
   poId?: string;
+  supplierId?: string; // Added supplier reference
+  clientId?: string; // Added client reference
   description?: string;
   dateAdded: string;
 };

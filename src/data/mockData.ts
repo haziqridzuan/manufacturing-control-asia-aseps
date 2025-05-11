@@ -1,4 +1,4 @@
-import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus, SupplierComment } from "@/types";
+import { Milestone, Project, ProjectStatus, Supplier, PurchaseOrder, POStatus, SupplierComment, Client } from "@/types";
 
 // Add comments to suppliers
 const supplierComments: SupplierComment[] = [
@@ -113,6 +113,68 @@ export const suppliers: Supplier[] = [
     comments: supplierComments.filter(c => c.supplierId === "s5"),
     location: "Johannesburg, South Africa"
   },
+];
+
+// Add clients data
+export const clients: Client[] = [
+  {
+    id: "c1",
+    name: "NYC Development Corp",
+    contactPerson: "Jennifer Williams",
+    email: "j.williams@nycdevelopment.com",
+    phone: "+1 212-555-7890",
+    address: "350 Fifth Avenue, New York, NY 10118",
+    country: "United States",
+    notes: "High priority client with multiple ongoing projects."
+  },
+  {
+    id: "c2",
+    name: "Tokyo Metro Authority",
+    contactPerson: "Kenji Yamada",
+    email: "k.yamada@tokyometro.jp",
+    phone: "+81 3-9876-5432",
+    address: "1-6-1 Yaesu, Chuo-ku, Tokyo",
+    country: "Japan",
+    notes: "Requires detailed weekly progress reports."
+  },
+  {
+    id: "c3",
+    name: "Berlin Commercial Developers",
+    contactPerson: "Hannah Bauer",
+    email: "h.bauer@berlincommercial.de",
+    phone: "+49 30 987-6543",
+    address: "Friedrichstraße 123, 10117 Berlin",
+    country: "Germany",
+    notes: "Prefers communication in German."
+  },
+  {
+    id: "c4",
+    name: "Brazil Infrastructure Group",
+    contactPerson: "Rafael Costa",
+    email: "rafael@brazilinfra.com.br",
+    phone: "+55 11 4567-8901",
+    address: "Av. Paulista 1000, São Paulo",
+    country: "Brazil"
+  },
+  {
+    id: "c5",
+    name: "Cape Town Airport Authority",
+    contactPerson: "Thabo Nkosi",
+    email: "t.nkosi@ctairport.co.za",
+    phone: "+27 21 987-6543",
+    address: "Airport City, Cape Town",
+    country: "South Africa"
+  },
+  {
+    id: "c6",
+    name: "Dubai Property Development",
+    contactPerson: "Ahmed Al-Maktoum",
+    email: "ahmed@dubaiproperty.ae",
+    phone: "+971 4 234-5678",
+    address: "Sheikh Zayed Road, Dubai",
+    country: "UAE",
+    notes: "Requires premium quality materials only."
+  }
 ];
 
 export const projects: Project[] = [
@@ -561,28 +623,46 @@ export const purchaseOrders: PurchaseOrder[] = [
   }
 ];
 
-// Update projects with manager information
+// Update projects with client IDs
 projects.forEach(project => {
   if (project.id === "p1") {
+    project.clientId = "c1"; // NYC Development Corp
     project.projectManager = "John Davis";
     project.manufacturingManager = "Michael Chen";
   } else if (project.id === "p2") {
+    project.clientId = "c2"; // Tokyo Metro Authority
     project.projectManager = "Akira Tanaka";
     project.manufacturingManager = "Yuki Sato";
   } else if (project.id === "p3") {
+    project.clientId = "c3"; // Berlin Commercial Developers
     project.projectManager = "Klaus Schmidt";
     project.manufacturingManager = "Hans Muller";
   } else if (project.id === "p4") {
+    project.clientId = "c4"; // Brazil Infrastructure Group
     project.projectManager = "Roberto Silva";
     project.manufacturingManager = "Carlos Fernandez";
   } else if (project.id === "p5") {
+    project.clientId = "c5"; // Cape Town Airport Authority
     project.projectManager = "David Nkosi";
     project.manufacturingManager = "Samuel Okafor";
   } else if (project.id === "p6") {
+    project.clientId = "c6"; // Dubai Property Development
     project.projectManager = "Mohammed Al-Farsi";
     project.manufacturingManager = "Tariq Hasan";
   }
 });
+
+// Add helper function to get client by ID
+export const getClientById = (id: string): Client | undefined => {
+  return clients.find(client => client.id === id);
+};
+
+// Add helper function to get client by project ID
+export const getClientByProjectId = (projectId: string): Client | undefined => {
+  const project = projects.find(p => p.id === projectId);
+  if (!project || !project.clientId) return undefined;
+  return getClientById(project.clientId);
+};
 
 // Helper function to get supplier name by ID
 export const getSupplierById = (id: string): Supplier | undefined => {
@@ -600,6 +680,11 @@ export const getSupplierByProjectId = (projectId: string): Supplier | undefined 
 // Get projects by supplier ID
 export const getProjectsBySupplierId = (supplierId: string): Project[] => {
   return projects.filter(project => project.supplierId === supplierId);
+};
+
+// Get projects by client ID
+export const getProjectsByClientId = (clientId: string): Project[] => {
+  return projects.filter(project => project.clientId === clientId);
 };
 
 // Get projects by status
@@ -657,4 +742,32 @@ export const getPOById = (id: string): PurchaseOrder | undefined => {
 export const getCommentsBySupplierId = (supplierId: string): SupplierComment[] => {
   const supplier = suppliers.find(s => s.id === supplierId);
   return supplier?.comments || [];
+};
+
+// Get list of suppliers for a project based on POs
+export const getProjectSuppliers = (projectId: string): Supplier[] => {
+  const projectPOs = getPOsByProjectId(projectId);
+  const supplierIds = [...new Set(projectPOs.map(po => po.supplierId))];
+  return supplierIds.map(id => getSupplierById(id)).filter((s): s is Supplier => s !== undefined);
+};
+
+// Get upcoming PO deadlines
+export const getUpcomingPODeadlines = (limit = 5): PurchaseOrder[] => {
+  return [...purchaseOrders]
+    .filter(po => po.status === "active" && po.contractualDeadline)
+    .sort((a, b) => {
+      const dateA = a.contractualDeadline ? new Date(a.contractualDeadline).getTime() : Infinity;
+      const dateB = b.contractualDeadline ? new Date(b.contractualDeadline).getTime() : Infinity;
+      return dateA - dateB;
+    })
+    .slice(0, limit);
+};
+
+// Calculate PO progress for a supplier
+export const getSupplierProgress = (supplierId: string): number => {
+  const supplierPOs = purchaseOrders.filter(po => po.supplierId === supplierId);
+  if (supplierPOs.length === 0) return 0;
+  
+  const completedPOs = supplierPOs.filter(po => po.status === "completed").length;
+  return Math.round((completedPOs / supplierPOs.length) * 100);
 };

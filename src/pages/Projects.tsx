@@ -8,7 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StatusBadge from "@/components/ui/StatusBadge";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { projects, getSupplierById, formatDate, getDaysRemaining } from "@/data/mockData";
+import { 
+  projects, 
+  getSupplierById, 
+  formatDate, 
+  getDaysRemaining,
+  getClientByProjectId
+} from "@/data/mockData";
 import { FilterOptions, Project, ProjectStatus } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +40,11 @@ const Projects = () => {
     
     // Supplier filter
     if (filters.supplier && project.supplierId !== filters.supplier) {
+      return false;
+    }
+    
+    // Client filter
+    if (filters.client && project.clientId !== filters.client) {
       return false;
     }
     
@@ -96,7 +107,7 @@ const Projects = () => {
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="py-3 px-4 text-left">Project Name</th>
-                  <th className="py-3 px-4 text-left">Supplier</th>
+                  <th className="py-3 px-4 text-left">Client</th>
                   <th className="py-3 px-4 text-left">Location</th>
                   <th className="py-3 px-4 text-left">Status</th>
                   <th className="py-3 px-4 text-left">Progress</th>
@@ -106,7 +117,7 @@ const Projects = () => {
               </thead>
               <tbody>
                 {filteredProjects.map((project) => {
-                  const supplier = getSupplierById(project.supplierId);
+                  const client = getClientByProjectId(project.id);
                   const daysRemaining = getDaysRemaining(project.deadline);
                   
                   return (
@@ -117,8 +128,8 @@ const Projects = () => {
                         </Link>
                       </td>
                       <td className="py-3 px-4">
-                        <Link to={`/supplier/${supplier?.id}`} className="hover:underline">
-                          {supplier?.name}
+                        <Link to={`/client/${client?.id}`} className="hover:underline">
+                          {client?.name || "N/A"}
                         </Link>
                       </td>
                       <td className="py-3 px-4">{project.location}</td>

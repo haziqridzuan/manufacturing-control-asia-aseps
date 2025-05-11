@@ -8,8 +8,20 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import ProgressBar from '@/components/ui/ProgressBar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { projects, suppliers, purchaseOrders, getSupplierById, getMilestonesByProjectId, getPOsByProjectId, formatDate, getDaysRemaining } from '@/data/mockData';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, Tooltip } from 'recharts';
+import { 
+  projects, 
+  suppliers, 
+  purchaseOrders, 
+  getSupplierById, 
+  getMilestonesByProjectId, 
+  getPOsByProjectId, 
+  formatDate, 
+  getDaysRemaining,
+  getClientByProjectId,
+  getProjectSuppliers,
+  getSupplierProgress
+} from '@/data/mockData';
 import { PurchaseOrder } from '@/types';
 
 const ProjectDetails = () => {
@@ -21,13 +33,15 @@ const ProjectDetails = () => {
   }
   
   const supplier = getSupplierById(project.supplierId);
+  const client = getClientByProjectId(project.id);
   const milestones = getMilestonesByProjectId(project.id);
-  const purchaseOrders = getPOsByProjectId(project.id);
+  const projectPurchaseOrders = getPOsByProjectId(project.id);
+  const projectSuppliers = getProjectSuppliers(project.id);
   
   // PO stats
-  const activePOs = purchaseOrders.filter(po => po.status === 'active').length;
-  const completedPOs = purchaseOrders.filter(po => po.status === 'completed').length;
-  const canceledPOs = purchaseOrders.filter(po => po.status === 'canceled').length;
+  const activePOs = projectPurchaseOrders.filter(po => po.status === 'active').length;
+  const completedPOs = projectPurchaseOrders.filter(po => po.status === 'completed').length;
+  const canceledPOs = projectPurchaseOrders.filter(po => po.status === 'canceled').length;
   
   // Chart data
   const poStatusData = [
@@ -37,7 +51,7 @@ const ProjectDetails = () => {
   ];
   
   // Group POs by part type for visualization
-  const partData = purchaseOrders.reduce((acc: any[], po) => {
+  const partData = projectPurchaseOrders.reduce((acc: any[], po) => {
     const existingPart = acc.find(item => item.name === po.partName);
     if (existingPart) {
       existingPart.quantity += po.quantity;
@@ -46,6 +60,41 @@ const ProjectDetails = () => {
     }
     return acc;
   }, []);
+  
+  // Supplier progress data
+  const supplierProgressData = projectSuppliers.map(supplier => ({
+    name: supplier.name,
+    progress: getSupplierProgress(supplier.id)
+  }));
+  
+  // Budget spent analysis data (mock data for now)
+  const budgetAnalysisData = [
+    { name: 'Jan', spent: 25000 },
+    { name: 'Feb', spent: 48000 },
+    { name: 'Mar', spent: 65000 },
+    { name: 'Apr', spent: 87000 },
+    { name: 'May', spent: 120000 }
+  ];
+  
+  // Timeline analysis data (mock data)
+  const timelineData = [
+    { name: 'Week 1', planned: 10, actual: 8 },
+    { name: 'Week 2', planned: 20, actual: 15 },
+    { name: 'Week 3', planned: 30, actual: 25 },
+    { name: 'Week 4', planned: 40, actual: 32 },
+    { name: 'Week 5', planned: 50, actual: 45 },
+  ];
+  
+  // Group milestones by PO
+  const milestonesByPO = projectPurchaseOrders.map(po => {
+    const poMilestones = milestones.filter(m => m.poId === po.id) || [];
+    return {
+      po,
+      milestones: poMilestones,
+      // If no milestones are specifically linked to this PO, create default ones
+      hasMilestones: poMilestones.length > 0
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -129,16 +178,25 @@ const ProjectDetails = () => {
                 <div className="font-medium">{project.location}</div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">Main Supplier</div>
-                <div className="font-medium">{supplier?.name}</div>
+                <div className="text-sm text-muted-foreground">Client</div>
+                <div className="font-medium">{client?.name || 'Not assigned'}</div>
+              </div>
+              <div>
+                <div className="text-sm text-muted-foreground">Client Contact Person</div>
+                <div className="font-medium">{client?.contactPerson || 'Not assigned'}</div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Project Manager</div>
                 <div className="font-medium">{project.projectManager || 'Not assigned'}</div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">Manufacturing Manager</div>
-                <div className="font-medium">{project.manufacturingManager || 'Not assigned'}</div>
+                <div className="text-sm text-muted-foreground">Suppliers in Asia Involved</div>
+                <div className="font-medium">
+                  {projectSuppliers
+                    .filter(s => ['Japan', 'China', 'Vietnam', 'Thailand', 'Malaysia', 'Singapore', 'Indonesia', 'Philippines', 'South Korea', 'Taiwan'].includes(s.country))
+                    .map(s => s.name)
+                    .join(', ') || 'None'}
+                </div>
               </div>
             </div>
           </CardContent>
@@ -152,7 +210,7 @@ const ProjectDetails = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-muted p-3 rounded-md text-center">
-                  <div className="text-2xl font-bold">{purchaseOrders.length}</div>
+                  <div className="text-2xl font-bold">{projectPurchaseOrders.length}</div>
                   <div className="text-sm text-muted-foreground">Total POs</div>
                 </div>
                 <div className="bg-muted p-3 rounded-md text-center">
@@ -165,13 +223,13 @@ const ProjectDetails = () => {
                 </div>
                 <div className="bg-muted p-3 rounded-md text-center">
                   <div className="text-2xl font-bold text-muted-foreground">
-                    {purchaseOrders.reduce((sum, po) => sum + po.quantity, 0).toLocaleString()}
+                    {projectPurchaseOrders.reduce((sum, po) => sum + po.quantity, 0).toLocaleString()}
                   </div>
                   <div className="text-sm text-muted-foreground">Total Parts</div>
                 </div>
               </div>
               
-              {purchaseOrders.length > 0 && (
+              {projectPurchaseOrders.length > 0 && (
                 <div className="h-[120px]">
                   <ChartContainer config={{}}>
                     <ResponsiveContainer width="100%" height="100%">
@@ -200,11 +258,115 @@ const ProjectDetails = () => {
         </Card>
       </div>
       
+      {/* Progress by Supplier */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Progress by Supplier</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px]">
+            <ChartContainer config={{}}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={supplierProgressData}
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 20,
+                    bottom: 60,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" angle={-45} textAnchor="end" />
+                  <YAxis />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="progress" name="Completion %" fill="#3498db" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Upcoming PO Deadlines */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Upcoming PO Deadlines</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="py-3 px-4 text-left">PO Number</th>
+                  <th className="py-3 px-4 text-left">Part Name</th>
+                  <th className="py-3 px-4 text-left">Supplier</th>
+                  <th className="py-3 px-4 text-left">Deadline</th>
+                  <th className="py-3 px-4 text-left">Days Remaining</th>
+                  <th className="py-3 px-4 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectPurchaseOrders
+                  .filter(po => po.status === 'active' && po.contractualDeadline)
+                  .sort((a, b) => {
+                    const dateA = a.contractualDeadline ? new Date(a.contractualDeadline).getTime() : Infinity;
+                    const dateB = b.contractualDeadline ? new Date(b.contractualDeadline).getTime() : Infinity;
+                    return dateA - dateB;
+                  })
+                  .map(po => {
+                    const supplier = getSupplierById(po.supplierId);
+                    const daysRemaining = po.contractualDeadline ? getDaysRemaining(po.contractualDeadline) : 0;
+                    
+                    return (
+                      <tr key={po.id} className="border-b last:border-0 hover:bg-muted/50">
+                        <td className="py-3 px-4 font-medium">{po.poNumber}</td>
+                        <td className="py-3 px-4">{po.partName}</td>
+                        <td className="py-3 px-4">{supplier?.name}</td>
+                        <td className="py-3 px-4">
+                          {po.contractualDeadline && formatDate(po.contractualDeadline)}
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className={cn(
+                            "font-medium",
+                            daysRemaining < 0 ? "text-status-delayed" : 
+                            daysRemaining < 7 ? "text-status-in-progress" : 
+                            "text-status-pending"
+                          )}>
+                            {daysRemaining < 0 
+                              ? `${Math.abs(daysRemaining)} days overdue` 
+                              : `${daysRemaining} days remaining`
+                            }
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <StatusBadge status={
+                            daysRemaining < 0 ? "delayed" : 
+                            po.status === "completed" ? "completed" : "in-progress"
+                          } />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  
+                {projectPurchaseOrders.filter(po => po.status === 'active' && po.contractualDeadline).length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-6 text-center text-muted-foreground">
+                      No upcoming PO deadlines for this project.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+      
       {/* Tabs for Project Detail Data */}
       <Tabs defaultValue="purchase-orders">
         <TabsList className="mb-4">
           <TabsTrigger value="purchase-orders">Purchase Orders</TabsTrigger>
-          <TabsTrigger value="milestones">Milestones</TabsTrigger>
+          <TabsTrigger value="milestones">Milestones by PO</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
         
@@ -214,7 +376,7 @@ const ProjectDetails = () => {
               <CardTitle className="text-lg">Purchase Orders</CardTitle>
             </CardHeader>
             <CardContent>
-              {purchaseOrders.length === 0 ? (
+              {projectPurchaseOrders.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No purchase orders found for this project.
                 </div>
@@ -229,11 +391,12 @@ const ProjectDetails = () => {
                       <TableHead>Placed By</TableHead>
                       <TableHead>Date Created</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Progress</TableHead>
                       <TableHead>Shipment Date</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {purchaseOrders.map(po => {
+                    {projectPurchaseOrders.map(po => {
                       const poSupplier = getSupplierById(po.supplierId);
                       
                       return (
@@ -253,6 +416,16 @@ const ProjectDetails = () => {
                               {po.status}
                             </Badge>
                           </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <ProgressBar 
+                                progress={po.progress || 0} 
+                                status={po.status}
+                                className="w-24" 
+                              />
+                              <span>{po.progress || 0}%</span>
+                            </div>
+                          </TableCell>
                           <TableCell>{po.shipmentDate ? formatDate(po.shipmentDate) : 'Not shipped'}</TableCell>
                         </TableRow>
                       );
@@ -267,34 +440,59 @@ const ProjectDetails = () => {
         <TabsContent value="milestones">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Project Milestones</CardTitle>
+              <CardTitle className="text-lg">Milestones by Purchase Order</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {milestones.map((milestone, index) => (
-                  <div 
-                    key={milestone.id} 
-                    className="flex items-center gap-4 p-3 rounded-lg border"
-                  >
-                    <div className={`
-                      w-8 h-8 rounded-full flex items-center justify-center text-white
-                      ${milestone.completed ? 'bg-status-completed' : 'bg-muted-foreground'}
-                    `}>
-                      {index + 1}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-medium">{milestone.title}</div>
-                      <div className="text-sm text-muted-foreground">Due: {formatDate(milestone.dueDate)}</div>
-                    </div>
-                    <div>
-                      {milestone.completed ? (
-                        <Badge className="bg-status-completed">Completed</Badge>
-                      ) : (
-                        <Badge variant="outline">Pending</Badge>
-                      )}
-                    </div>
+              <div className="space-y-6">
+                {milestonesByPO.map(({ po, milestones, hasMilestones }) => (
+                  <div key={po.id} className="border rounded-lg p-4">
+                    <h3 className="text-lg font-medium mb-2">PO: {po.poNumber} - {po.partName}</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Supplier: {getSupplierById(po.supplierId)?.name} | 
+                      Status: {po.status} | 
+                      Created: {formatDate(po.dateCreated)}
+                    </p>
+                    
+                    {hasMilestones ? (
+                      <div className="space-y-4">
+                        {milestones.map((milestone, index) => (
+                          <div 
+                            key={milestone.id} 
+                            className="flex items-center gap-4 p-3 rounded-lg border"
+                          >
+                            <div className={`
+                              w-8 h-8 rounded-full flex items-center justify-center text-white
+                              ${milestone.completed ? 'bg-status-completed' : 'bg-muted-foreground'}
+                            `}>
+                              {index + 1}
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium">{milestone.title}</div>
+                              <div className="text-sm text-muted-foreground">Due: {formatDate(milestone.dueDate)}</div>
+                            </div>
+                            <div>
+                              {milestone.completed ? (
+                                <Badge className="bg-status-completed">Completed</Badge>
+                              ) : (
+                                <Badge variant="outline">Pending</Badge>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center p-6 text-muted-foreground">
+                        No specific milestones set for this PO
+                      </div>
+                    )}
                   </div>
                 ))}
+                
+                {projectPurchaseOrders.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No purchase orders found for this project.
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -341,37 +539,108 @@ const ProjectDetails = () => {
                   </CardContent>
                 </Card>
                 
-                {/* Milestone Timeline */}
+                {/* Budget Spent Analysis */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">Timeline Adherence</CardTitle>
+                    <CardTitle className="text-base">Budget Spent Analysis</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ChartContainer config={{}}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={budgetAnalysisData}
+                            margin={{
+                              top: 20,
+                              right: 30,
+                              left: 20,
+                              bottom: 60,
+                            }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <ChartTooltip content={<ChartTooltipContent />} />
+                            <Bar 
+                              dataKey="spent" 
+                              name="Budget Spent ($)" 
+                              fill="#e74c3c" 
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Timeline Analysis */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Timeline Analysis</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ChartContainer config={{}}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart
+                            data={timelineData}
+                            margin={{
+                              top: 20,
+                              right: 30,
+                              left: 20,
+                              bottom: 20,
+                            }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Line 
+                              type="monotone" 
+                              dataKey="planned" 
+                              stroke="#8884d8" 
+                              activeDot={{ r: 8 }} 
+                              name="Planned Progress"
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="actual" 
+                              stroke="#82ca9d" 
+                              name="Actual Progress"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Progress by PO */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Progress by Purchase Order</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {milestones.map((milestone) => {
-                        const dueDate = new Date(milestone.dueDate);
-                        const today = new Date();
-                        const isOverdue = !milestone.completed && dueDate < today;
-                        
-                        return (
-                          <div key={milestone.id} className="space-y-1">
-                            <div className="flex justify-between text-sm">
-                              <span>{milestone.title}</span>
-                              <span className={
-                                milestone.completed ? 'text-status-completed' :
-                                isOverdue ? 'text-status-delayed' :
-                                'text-muted-foreground'
-                              }>
-                                {formatDate(milestone.dueDate)}
-                              </span>
-                            </div>
-                            <ProgressBar 
-                              progress={milestone.completed ? 100 : isOverdue ? 0 : 50} 
-                              status={milestone.completed ? 'completed' : isOverdue ? 'delayed' : 'in-progress'} 
-                            />
+                      {projectPurchaseOrders.map(po => (
+                        <div key={po.id} className="space-y-1">
+                          <div className="flex justify-between text-sm">
+                            <span>{po.poNumber}: {po.partName}</span>
+                            <span className={
+                              po.status === 'completed' ? 'text-status-completed' :
+                              po.status === 'canceled' ? 'text-status-delayed' :
+                              'text-status-in-progress'
+                            }>
+                              {po.progress || 0}%
+                            </span>
                           </div>
-                        );
-                      })}
+                          <ProgressBar 
+                            progress={po.progress || 0} 
+                            status={po.status} 
+                          />
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
