@@ -9,6 +9,7 @@ import ProgressBar from '@/components/ui/ProgressBar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, Tooltip } from 'recharts';
+import { cn } from '@/lib/utils';
 import { 
   projects, 
   suppliers, 
@@ -22,7 +23,7 @@ import {
   getProjectSuppliers,
   getSupplierProgress
 } from '@/data/mockData';
-import { PurchaseOrder } from '@/types';
+import { PurchaseOrder, ProjectStatus } from '@/types';
 
 const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -95,6 +96,14 @@ const ProjectDetails = () => {
       hasMilestones: poMilestones.length > 0
     };
   });
+
+  // Helper function to map POStatus to ProjectStatus
+  const mapPOStatusToProjectStatus = (poStatus: 'active' | 'completed' | 'canceled'): ProjectStatus => {
+    if (poStatus === 'active') return 'in-progress';
+    if (poStatus === 'completed') return 'completed';
+    if (poStatus === 'canceled') return 'delayed';
+    return 'pending';
+  };
 
   return (
     <div className="space-y-6">
@@ -398,6 +407,7 @@ const ProjectDetails = () => {
                   <TableBody>
                     {projectPurchaseOrders.map(po => {
                       const poSupplier = getSupplierById(po.supplierId);
+                      const mappedStatus = mapPOStatusToProjectStatus(po.status);
                       
                       return (
                         <TableRow key={po.id}>
@@ -420,7 +430,7 @@ const ProjectDetails = () => {
                             <div className="flex items-center space-x-2">
                               <ProgressBar 
                                 progress={po.progress || 0} 
-                                status={po.status}
+                                status={mappedStatus}
                                 className="w-24" 
                               />
                               <span>{po.progress || 0}%</span>
@@ -637,7 +647,7 @@ const ProjectDetails = () => {
                           </div>
                           <ProgressBar 
                             progress={po.progress || 0} 
-                            status={po.status} 
+                            status={mapPOStatusToProjectStatus(po.status)} 
                           />
                         </div>
                       ))}
