@@ -270,7 +270,7 @@ export const createSupplier = async (supplier: Omit<Supplier, 'id' | 'comments'>
 };
 
 export const updateSupplier = async (id: string, supplier: Partial<Supplier>) => {
-  // Create an object with just the fields to update using the correct structure
+  // Directly define the update data without using adaptToSupplierRow
   const updateData: Record<string, unknown> = {};
   
   if (supplier.name !== undefined) updateData.name = supplier.name;
@@ -329,7 +329,7 @@ export const createPurchaseOrder = async (order: Omit<PurchaseOrder, 'id'>) => {
 };
 
 export const updatePurchaseOrder = async (id: string, order: Partial<PurchaseOrder>) => {
-  // Create an object with just the fields to update using the correct structure
+  // Directly define the update data without using adaptToPurchaseOrderRow
   const updateData: Record<string, unknown> = {};
   
   if (order.poNumber !== undefined) updateData.po_number = order.poNumber;
@@ -387,7 +387,7 @@ export const createExternalLink = async (link: Omit<ExternalLink, 'id'>) => {
 };
 
 export const updateExternalLink = async (id: string, link: Partial<ExternalLink>) => {
-  // Create an object with just the fields to update using the correct structure
+  // Directly define the update data without using adaptToExternalLinkRow
   const updateData: Record<string, unknown> = {};
   
   if (link.title !== undefined) updateData.title = link.title;
