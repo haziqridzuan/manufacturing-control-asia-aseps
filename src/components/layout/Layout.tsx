@@ -1,6 +1,6 @@
 
 import { ReactNode, useEffect, useState } from 'react';
-import Sidebar from './Sidebar';
+import { Sidebar } from './Sidebar';
 import { cn } from '@/lib/utils';
 import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -57,11 +57,6 @@ const Layout = ({ children }: LayoutProps) => {
               >
                 {darkMode ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
               </Button>
-              <img 
-                src="https://www.actemium-mixing-process.com/media/websites/actemium-mixing/img/actemium-logo-baseline.png" 
-                alt="Actemium Logo" 
-                className="h-8" 
-              />
             </div>
           </div>
           {children}

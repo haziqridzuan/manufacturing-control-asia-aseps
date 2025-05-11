@@ -17,12 +17,12 @@ import {
   Truck,
   Users
 } from "lucide-react";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Sidebar() {
   const [expanded, setExpanded] = useState(true);
   const { pathname } = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
   
   // Always collapse on mobile
