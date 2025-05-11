@@ -61,7 +61,7 @@ export const createProject = async (project: Omit<Project, 'id'>) => {
   
   const { data, error } = await supabase
     .from('projects')
-    .insert([supabaseProject])
+    .insert(supabaseProject)
     .select();
     
   if (error) {
@@ -230,7 +230,7 @@ export const createSupplier = async (supplier: Omit<Supplier, 'id' | 'comments'>
   
   const { data, error } = await supabase
     .from('suppliers')
-    .insert([supabaseSupplier])
+    .insert(supabaseSupplier)
     .select();
     
   if (error) {
@@ -268,7 +268,7 @@ export const createPurchaseOrder = async (order: Omit<PurchaseOrder, 'id'>) => {
   
   const { data, error } = await supabase
     .from('purchase_orders')
-    .insert([supabasePO])
+    .insert(supabasePO)
     .select();
     
   if (error) {
@@ -306,7 +306,7 @@ export const createExternalLink = async (link: Omit<ExternalLink, 'id'>) => {
   
   const { data, error } = await supabase
     .from('external_links')
-    .insert([supabaseLink])
+    .insert(supabaseLink)
     .select();
     
   if (error) {

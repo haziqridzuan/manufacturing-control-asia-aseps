@@ -5,6 +5,8 @@ export type POStatus = "active" | "completed" | "cancelled";
 
 export type SupplierCommentType = "positive" | "negative" | "neutral";
 
+export type ExternalLinkType = "weekly-report" | "manufacturing-control" | "shipment" | "photos" | "tracking";
+
 export interface SupplierComment {
   id: string;
   supplierId: string;
@@ -91,8 +93,6 @@ export interface TeamMember {
   department: string;
   phone?: string;
 }
-
-export type ExternalLinkType = "weekly-report" | "manufacturing-control" | "shipment" | "photos" | "tracking";
 
 export interface ExternalLink {
   id: string;
