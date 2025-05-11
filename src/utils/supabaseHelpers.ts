@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type { 
   Project, 
@@ -79,7 +78,7 @@ export const createProject = async (project: Omit<Project, 'id'>) => {
 };
 
 export const updateProject = async (id: string, project: Partial<Project>) => {
-  // Create an object with just the fields to update using the correct structure
+  // Create a direct mapping object without using type adapters to avoid recursion
   const updateData: Record<string, unknown> = {};
   
   if (project.name !== undefined) updateData.name = project.name;
