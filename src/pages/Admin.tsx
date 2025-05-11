@@ -894,4 +894,207 @@ const Admin = () => {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <
+                      <Label htmlFor="partName">Part Name</Label>
+                      <Input 
+                        id="partName" 
+                        value={editPO?.partName || ''} 
+                        onChange={e => setEditPO(prev => prev ? {...prev, partName: e.target.value} : null)} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="quantity">Quantity</Label>
+                      <Input 
+                        id="quantity" 
+                        type="number"
+                        value={editPO?.quantity || 0} 
+                        onChange={e => setEditPO(prev => prev ? {...prev, quantity: Number(e.target.value)} : null)} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="supplierId">Supplier</Label>
+                      <Select 
+                        value={editPO?.supplierId} 
+                        onValueChange={value => setEditPO(prev => prev ? {...prev, supplierId: value} : null)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select supplier" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {suppliers.map(supplier => (
+                            <SelectItem key={supplier.id} value={supplier.id}>
+                              {supplier.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="dateCreated">Date Created</Label>
+                      <Input 
+                        id="dateCreated" 
+                        type="date"
+                        value={editPO?.dateCreated || ''} 
+                        onChange={e => setEditPO(prev => prev ? {...prev, dateCreated: e.target.value} : null)} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contractualDeadline">Deadline</Label>
+                      <Input 
+                        id="contractualDeadline" 
+                        type="date"
+                        value={editPO?.contractualDeadline || ''} 
+                        onChange={e => setEditPO(prev => prev ? {...prev, contractualDeadline: e.target.value} : null)} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="placedBy">Placed By</Label>
+                      <Input 
+                        id="placedBy" 
+                        value={editPO?.placedBy || ''} 
+                        onChange={e => setEditPO(prev => prev ? {...prev, placedBy: e.target.value} : null)} 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="status">Status</Label>
+                      <Select 
+                        value={editPO?.status} 
+                        onValueChange={value => setEditPO(prev => prev ? {...prev, status: value as POStatus} : null)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <Button variant="outline" onClick={() => {
+                      setShowAddPO(false);
+                      setEditPO(null);
+                    }}>Cancel</Button>
+                    <Button onClick={savePO}>Save Purchase Order</Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-muted/50">
+                        <th className="py-3 px-4 text-left">PO Number</th>
+                        <th className="py-3 px-4 text-left">Project</th>
+                        <th className="py-3 px-4 text-left">Supplier</th>
+                        <th className="py-3 px-4 text-left">Part Name</th>
+                        <th className="py-3 px-4 text-left">Quantity</th>
+                        <th className="py-3 px-4 text-left">Deadline</th>
+                        <th className="py-3 px-4 text-left">Status</th>
+                        <th className="py-3 px-4 text-left">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {posList.map(po => (
+                        <tr key={po.id} className="border-b last:border-0 hover:bg-muted/50">
+                          <td className="py-3 px-4 font-medium">{po.poNumber}</td>
+                          <td className="py-3 px-4">{projects.find(p => p.id === po.projectId)?.name || "N/A"}</td>
+                          <td className="py-3 px-4">{suppliers.find(s => s.id === po.supplierId)?.name || "N/A"}</td>
+                          <td className="py-3 px-4">{po.partName}</td>
+                          <td className="py-3 px-4">{po.quantity}</td>
+                          <td className="py-3 px-4">{po.contractualDeadline}</td>
+                          <td className="py-3 px-4">{po.status}</td>
+                          <td className="py-3 px-4">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => {
+                                setEditPO(po);
+                                setShowAddPO(true);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Team Tab */}
+        <TabsContent value="team">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg">Manage Team Members</CardTitle>
+                <Button onClick={() => setShowAddTeamMember(true)}>Add New Team Member</Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {showAddTeamMember ? (
+                <div className="space-y-4 border p-4 rounded-md">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Full Name</Label>
+                      <Input id="name" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="role">Role</Label>
+                      <Input id="role" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" type="email" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input id="phone" type="tel" />
+                    </div>
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <Button variant="outline" onClick={() => setShowAddTeamMember(false)}>Cancel</Button>
+                    <Button>Save Team Member</Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-muted/50">
+                        <th className="py-3 px-4 text-left">Name</th>
+                        <th className="py-3 px-4 text-left">Role</th>
+                        <th className="py-3 px-4 text-left">Email</th>
+                        <th className="py-3 px-4 text-left">Phone</th>
+                        <th className="py-3 px-4 text-left">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {teamMembersList.map(member => (
+                        <tr key={member.id} className="border-b last:border-0 hover:bg-muted/50">
+                          <td className="py-3 px-4 font-medium">{member.name}</td>
+                          <td className="py-3 px-4">{member.role}</td>
+                          <td className="py-3 px-4">{member.email}</td>
+                          <td className="py-3 px-4">{member.phone}</td>
+                          <td className="py-3 px-4">
+                            <Button variant="ghost" size="sm">Edit</Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default Admin;
