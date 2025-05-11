@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import type { 
   Project, 
@@ -265,7 +266,7 @@ export const createSupplier = async (supplier: Omit<Supplier, 'id' | 'comments'>
 };
 
 export const updateSupplier = async (id: string, supplier: Partial<Supplier>) => {
-  // Directly define the update data without using adaptToSupplierRow
+  // Use a simpler approach without type adapters to avoid infinite recursion
   const updateData: Record<string, unknown> = {};
   
   if (supplier.name !== undefined) updateData.name = supplier.name;
@@ -324,7 +325,7 @@ export const createPurchaseOrder = async (order: Omit<PurchaseOrder, 'id'>) => {
 };
 
 export const updatePurchaseOrder = async (id: string, order: Partial<PurchaseOrder>) => {
-  // Directly define the update data without using adaptToPurchaseOrderRow
+  // Use a simpler approach without type adapters to avoid infinite recursion
   const updateData: Record<string, unknown> = {};
   
   if (order.poNumber !== undefined) updateData.po_number = order.poNumber;
@@ -382,7 +383,7 @@ export const createExternalLink = async (link: Omit<ExternalLink, 'id'>) => {
 };
 
 export const updateExternalLink = async (id: string, link: Partial<ExternalLink>) => {
-  // Directly define the update data without using adaptToExternalLinkRow
+  // Use a simpler approach without type adapters to avoid infinite recursion
   const updateData: Record<string, unknown> = {};
   
   if (link.title !== undefined) updateData.title = link.title;
