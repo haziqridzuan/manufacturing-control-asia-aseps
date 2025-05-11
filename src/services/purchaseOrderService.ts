@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { PurchaseOrder } from '@/types';
 import { PurchaseOrderRow } from '@/types/supabaseTypes';
@@ -21,7 +20,7 @@ export function adaptPurchaseOrderFromSupabase(row: PurchaseOrderRow): PurchaseO
     shipmentDate: row.shipment_date || '',
     notes: row.notes || '',
     progress: row.progress || 0,
-    budgetSpent: row.budget_spent || 0,
+    budgetSpent: 0, // This field is not in the Supabase schema
   };
 }
 
@@ -43,7 +42,7 @@ export function adaptPurchaseOrderForSupabase(po: Partial<PurchaseOrder>) {
     shipment_date: po.shipmentDate,
     notes: po.notes,
     progress: po.progress,
-    budget_spent: po.budgetSpent,
+    // budget_spent is not included as it's not in the schema
   };
 }
 

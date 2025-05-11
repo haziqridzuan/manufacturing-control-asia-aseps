@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Project } from '@/types';
 import { ProjectRow } from '@/types/supabaseTypes';
@@ -13,14 +12,14 @@ export function adaptProjectFromSupabase(row: ProjectRow): Project {
     startDate: row.start_date || '',
     deadline: row.deadline || '',
     supplierId: row.supplier_id || '',
-    clientId: row.client_id || '',
+    clientId: '', // This field is not in the Supabase schema
     location: row.location || '',
     description: row.description || '',
     budget: row.budget || 0,
     milestones: [], // Fetched separately
     projectManager: row.project_manager || '',
     manufacturingManager: row.manufacturing_manager || '',
-    budgetSpent: row.budget_spent || 0,
+    budgetSpent: 0, // This field is not in the Supabase schema
   };
 }
 
@@ -34,13 +33,12 @@ export function adaptProjectForSupabase(project: Partial<Project>) {
     start_date: project.startDate,
     deadline: project.deadline,
     supplier_id: project.supplierId,
-    client_id: project.clientId,
     location: project.location,
     description: project.description,
     budget: project.budget,
     project_manager: project.projectManager,
     manufacturing_manager: project.manufacturingManager,
-    budget_spent: project.budgetSpent,
+    // client_id and budget_spent are not included as they're not in the schema
   };
 }
 

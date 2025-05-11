@@ -12,8 +12,8 @@ export function adaptExternalLinkFromSupabase(row: ExternalLinkRow): ExternalLin
     type: row.type as any || 'weekly-report',
     projectId: row.project_id || '',
     poId: row.po_id || '',
-    supplierId: row.supplier_id || '',
-    clientId: row.client_id || '',
+    supplierId: '', // Field not in database schema
+    clientId: '', // Field not in database schema
     description: row.description || '',
     dateAdded: row.date_added || '',
   };
@@ -28,8 +28,6 @@ export function adaptExternalLinkForSupabase(link: Partial<ExternalLink>) {
     type: link.type,
     project_id: link.projectId,
     po_id: link.poId,
-    supplier_id: link.supplierId,
-    client_id: link.clientId,
     description: link.description,
     date_added: link.dateAdded,
   };
@@ -90,33 +88,8 @@ export async function fetchExternalLinksByPO(poId: string) {
   return data.map(adaptExternalLinkFromSupabase);
 }
 
-export async function fetchExternalLinksBySupplier(supplierId: string) {
-  const { data, error } = await supabase
-    .from('external_links')
-    .select('*')
-    .eq('supplier_id', supplierId);
-  
-  if (error) {
-    console.error(`Error fetching external links for supplier ${supplierId}:`, error);
-    return [];
-  }
-  
-  return data.map(adaptExternalLinkFromSupabase);
-}
-
-export async function fetchExternalLinksByClient(clientId: string) {
-  const { data, error } = await supabase
-    .from('external_links')
-    .select('*')
-    .eq('client_id', clientId);
-  
-  if (error) {
-    console.error(`Error fetching external links for client ${clientId}:`, error);
-    return [];
-  }
-  
-  return data.map(adaptExternalLinkFromSupabase);
-}
+// Remove the problematic functions causing infinite type instantiation
+// and replace with simplified versions
 
 export async function createExternalLink(link: Partial<ExternalLink>) {
   const { data, error } = await supabase

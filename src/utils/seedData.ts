@@ -4,10 +4,7 @@ import {
   projects, 
   suppliers, 
   purchaseOrders, 
-  clients, 
-  milestones,
-  externalLinks,
-  teamMembers
+  clients
 } from '@/data/mockData';
 
 // This file provides utility functions to seed the Supabase database with our mock data
@@ -54,25 +51,8 @@ const purchaseOrderFields = {
   budgetSpent: 'budget_spent'
 };
 
-const milestoneFields = {
-  dueDate: 'due_date',
-  projectId: 'project_id',
-  poId: 'po_id'
-};
-
 const clientFields = {
   contactPerson: 'contact_person'
-};
-
-const teamMemberFields = {
-};
-
-const externalLinkFields = {
-  projectId: 'project_id',
-  poId: 'po_id',
-  supplierId: 'supplier_id',
-  clientId: 'client_id',
-  dateAdded: 'date_added'
 };
 
 // Convert data objects with special field mappings
@@ -131,33 +111,6 @@ export async function seedDatabase() {
       throw new Error(`Error seeding purchase orders: ${posError.message}`);
     }
     console.log("✅ Purchase orders seeded successfully");
-
-    // Convert and seed milestones
-    const convertedMilestones = convertData(milestones, milestoneFields);
-    const { error: milestonesError } = await supabase.from('milestones').upsert(convertedMilestones);
-    
-    if (milestonesError) {
-      throw new Error(`Error seeding milestones: ${milestonesError.message}`);
-    }
-    console.log("✅ Milestones seeded successfully");
-
-    // Convert and seed team members
-    const convertedTeamMembers = convertData(teamMembers, teamMemberFields);
-    const { error: teamMembersError } = await supabase.from('team_members').upsert(convertedTeamMembers);
-    
-    if (teamMembersError) {
-      throw new Error(`Error seeding team members: ${teamMembersError.message}`);
-    }
-    console.log("✅ Team members seeded successfully");
-
-    // Convert and seed external links
-    const convertedLinks = convertData(externalLinks, externalLinkFields);
-    const { error: linksError } = await supabase.from('external_links').upsert(convertedLinks);
-    
-    if (linksError) {
-      throw new Error(`Error seeding external links: ${linksError.message}`);
-    }
-    console.log("✅ External links seeded successfully");
 
     console.log("✅ All data seeded successfully!");
     return true;

@@ -11,7 +11,7 @@ export function adaptMilestoneFromSupabase(row: MilestoneRow): Milestone {
     dueDate: row.due_date || '',
     completed: row.completed || false,
     projectId: row.project_id || '',
-    poId: row.po_id || '',
+    poId: '', // This field is not in the Supabase schema
   };
 }
 
@@ -23,7 +23,7 @@ export function adaptMilestoneForSupabase(milestone: Partial<Milestone>) {
     due_date: milestone.dueDate,
     completed: milestone.completed,
     project_id: milestone.projectId,
-    po_id: milestone.poId,
+    // po_id is not included as it's not in the schema
   };
 }
 
@@ -68,24 +68,13 @@ export async function fetchMilestonesByProject(projectId: string) {
   return data.map(adaptMilestoneFromSupabase);
 }
 
-export async function fetchMilestonesByPO(poId: string) {
-  const { data, error } = await supabase
-    .from('milestones')
-    .select('*')
-    .eq('po_id', poId);
-  
-  if (error) {
-    console.error(`Error fetching milestones for PO ${poId}:`, error);
-    return [];
-  }
-  
-  return data.map(adaptMilestoneFromSupabase);
-}
-
+// Fix the problematic function causing infinite type instantiation
 export async function createMilestone(milestone: Partial<Milestone>) {
+  const supabaseMilestone = adaptMilestoneForSupabase(milestone);
+  
   const { data, error } = await supabase
     .from('milestones')
-    .insert(adaptMilestoneForSupabase(milestone))
+    .insert(supabaseMilestone)
     .select()
     .single();
   
@@ -98,9 +87,11 @@ export async function createMilestone(milestone: Partial<Milestone>) {
 }
 
 export async function updateMilestone(id: string, milestone: Partial<Milestone>) {
+  const supabaseMilestone = adaptMilestoneForSupabase(milestone);
+  
   const { data, error } = await supabase
     .from('milestones')
-    .update(adaptMilestoneForSupabase(milestone))
+    .update(supabaseMilestone)
     .eq('id', id)
     .select()
     .single();
